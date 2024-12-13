@@ -5,8 +5,12 @@ interface TauriState {
     volume: number;
     speed: number;
     paused: boolean;
-    position: { "secs": number, "nanos": number };
     "currently_playing_file_path": string | null;
+}
+
+interface Position {
+    secs: number;
+    nanos: number;
 }
 
 // Create async thunk for playing music
@@ -14,6 +18,13 @@ export const musicSync = createAsyncThunk(
     "tauri/musicSync",
     async () => {
         return invoke<TauriState>("get_redux_store_state")
+    }
+);
+
+export const getPosition = createAsyncThunk(
+    "tauri/getPosition",
+    async () => {
+        return invoke<Position>("get_position")
     }
 );
 
@@ -32,8 +43,10 @@ export const tauriSlice = createSlice({
             state.volume = action.payload.volume;
             state.speed = action.payload.speed;
             state.paused = action.payload.paused;
-            state.position = action.payload.position;
             state.currentlyPlaying = action.payload["currently_playing_file_path"];
+        });
+        builder.addCase(getPosition.fulfilled, (state, action) => {
+            state.position = action.payload;
         });
         // TODO: Add error handling
     }

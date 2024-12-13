@@ -22,6 +22,8 @@ import { RootState } from '../store';
         <button (click)="openFileMutataion.mutate()">Open File</button>
         <button (click)="play()">Play</button>
         <button (click)="stop()">Stop</button>
+        <button (click)="pause()">Pause</button>
+        <button (click)="resume()">Resume</button>
     }
   }
 
@@ -53,12 +55,20 @@ export class Home {
   }));
 
   play() {
-    invoke("play_sound", {
+    invoke("play", {
       path: this.openFileMutataion.data()
     });
   }
 
   stop() {
-    invoke("stop_sound");
+    invoke("stop");
+  }
+
+  resume() {
+    invoke("resume");
+  }
+
+  pause() {
+    invoke("pause");
   }
 }

@@ -8,7 +8,7 @@ use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
-use tauri::{Manager, State};
+use tauri::{AppHandle, Emitter, Manager, State};
 
 thread_local! {
     static AUDIO: (OutputStream, OutputStreamHandle) = OutputStream::try_default().unwrap();
@@ -67,7 +67,7 @@ fn read_mp3_metadata(path: &str) -> Result<serde_json::Value, String> {
 }
 
 #[tauri::command]
-fn play_sound(path: &str, state: State<'_, Mutex<AppData>>) -> Result<(), String> {
+fn play(app: AppHandle, path: &str, state: State<'_, Mutex<AppData>>) -> Result<(), String> {
     let path = Path::new(path);
     let file = BufReader::new(File::open(path).map_err(|e| e.to_string())?);
     let source = Decoder::new(file).map_err(|e| e.to_string())?;
@@ -77,32 +77,52 @@ fn play_sound(path: &str, state: State<'_, Mutex<AppData>>) -> Result<(), String
     state.currently_playing_file_path = Some(path.to_string_lossy().into_owned());
 
     SINK.with(|sink| sink.append(source));
+    app.emit("SERVER_SYNC_EVENT", "").unwrap();
     Ok(())
 }
 
 #[tauri::command]
-fn stop_sound(state: State<'_, Mutex<AppData>>) {
+fn stop(app: AppHandle, state: State<'_, Mutex<AppData>>) {
     // Clear the currently playing file path when stopping
     let mut state = state.lock().unwrap();
     state.currently_playing_file_path = None;
 
     SINK.with(|sink| sink.stop());
+    app.emit("SERVER_SYNC_EVENT", "").unwrap();
 }
 
 #[tauri::command]
-fn set_volume(volume: f32) {
+fn set_volume(app: AppHandle, volume: f32) {
     SINK.with(|sink| sink.set_volume(volume));
+    app.emit("SERVER_SYNC_EVENT", "").unwrap();
 }
 
 #[tauri::command]
-fn set_speed(speed: f32) {
+fn set_speed(app: AppHandle, speed: f32) {
     SINK.with(|sink| sink.set_speed(speed));
+    app.emit("SERVER_SYNC_EVENT", "").unwrap();
 }
 
 #[tauri::command]
-fn seek(position: std::time::Duration) -> Result<(), String> {
+fn seek_to(app: AppHandle, position: std::time::Duration) -> Result<(), String> {
     SINK.with(|sink| sink.try_seek(position))
+        .and_then(|_| {
+            app.emit("SERVER_SYNC_EVENT", "").unwrap();
+            Ok(())
+        })
         .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn pause(app: AppHandle) {
+    SINK.with(|sink| sink.pause());
+    app.emit("SERVER_SYNC_EVENT", "").unwrap();
+}
+
+#[tauri::command]
+fn resume(app: AppHandle) {
+    SINK.with(|sink| sink.play());
+    app.emit("SERVER_SYNC_EVENT", "").unwrap();
 }
 
 #[derive(Serialize)]
@@ -110,7 +130,6 @@ struct PlayerState {
     volume: f32,
     speed: f32,
     paused: bool,
-    position: std::time::Duration,
     currently_playing_file_path: Option<String>,
 }
 
@@ -122,9 +141,13 @@ fn get_redux_store_state(state: State<'_, Mutex<AppData>>) -> PlayerState {
         volume: sink.volume(),
         speed: sink.speed(),
         paused: sink.is_paused(),
-        position: sink.get_pos(),
         currently_playing_file_path: app_data.currently_playing_file_path.clone(),
     })
+}
+
+#[tauri::command]
+fn get_position() -> std::time::Duration {
+    SINK.with(|sink| sink.get_pos())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -138,12 +161,15 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             read_mp3_metadata,
-            play_sound,
-            stop_sound,
+            play,
+            stop,
             get_redux_store_state,
             set_volume,
             set_speed,
-            seek
+            seek_to,
+            pause,
+            resume,
+            get_position,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

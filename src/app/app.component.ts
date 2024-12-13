@@ -1,10 +1,10 @@
 import { Component, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
-import { injectDispatch } from "@reduxjs/angular-redux";
+import { injectDispatch, injectSelector } from "@reduxjs/angular-redux";
 import { listen } from '@tauri-apps/api/event';
-import { musicSync } from './store/tauri';
-import { AppDispatch } from './store';
+import { getPosition, musicSync } from './store/tauri';
+import { AppDispatch, RootState } from './store';
 
 @Component({
   selector: 'app-root',
@@ -28,14 +28,23 @@ export class App {
       unlisten = listener;
     });
 
-    // // Allows us to get the position of the music player. Probably not the best way to do this.
-    // const interval = setInterval(() => {
-    //   this.dispatch(musicSync());
-    // }, 1000);
+    onCleanup(() => {
+      unlisten();
+    });
+  })
+
+  tauri = injectSelector((state: RootState) => state.tauri);
+
+  // Allows us to get the position of the music player. Probably not the best way to do this.
+  _getPos = effect((onCleanup) => {
+    if (this.tauri().paused) return;
+    if (this.tauri().currentlyPlaying === null) return;
+    const interval = setInterval(() => {
+      this.dispatch(getPosition());
+    }, 1000);
 
     onCleanup(() => {
-      // clearInterval(interval)
-      unlisten();
+      clearInterval(interval)
     });
   })
 }
