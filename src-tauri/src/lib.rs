@@ -158,6 +158,7 @@ fn get_position() -> std::time::Duration {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_window_state::Builder::default().build())
@@ -165,13 +166,9 @@ pub fn run() {
         .setup(|app| {
             app.manage(Mutex::new(AppData::default()));
 
-            // Create a custom titlebar for main window
-            // On Windows this hides decoration and creates custom window controls
-            // On macOS it needs hiddenTitle: true and titleBarStyle: overlay
             let main_window = app.get_webview_window("main").unwrap();
             main_window.create_overlay_titlebar().unwrap();
             if cfg!(target_os = "macos") {
-				main_window.set_traffic_lights_inset(12.0, 16.0).unwrap();
                 main_window.make_transparent().unwrap();
 
                 #[cfg(target_os = "macos")]
@@ -179,7 +176,8 @@ pub fn run() {
                     .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
             } else if cfg!(target_os = "windows") {
                 #[cfg(target_os = "windows")]
-                apply_blur(&main_window, Some((18, 18, 18, 125))).expect("Unsupported platform! 'apply_blur' is only supported on Windows");
+                apply_blur(&main_window, Some((18, 18, 18, 125)))
+                    .expect("Unsupported platform! 'apply_blur' is only supported on Windows");
             }
 
             Ok(())
