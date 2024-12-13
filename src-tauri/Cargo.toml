@@ -26,6 +26,10 @@ symphonia = { version = "0.5.3", features = ["mp3"] }
 tauri-plugin-dialog = "2"
 rodio = {version = "0.20.1", features = ["symphonia-all"] }
 window-vibrancy = "0.5.2"
+objc = "0.2.7"
+hex_color = "3.0.0"
+tauri-plugin-window-state = "2.2.0"
+rand = "0.8.5"
 
 [target."cfg(target_os = \"macos\")".dependencies]
 cocoa = "0.26"

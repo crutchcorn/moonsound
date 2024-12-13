@@ -1,5 +1,22 @@
+// Prevents additional console window on Windows in release, DO NOT REMOVE!!
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
+#[cfg(target_os = "macos")]
+#[macro_use]
+extern crate cocoa;
+
+#[cfg(target_os = "macos")]
+extern crate objc;
+
+#[cfg(target_os = "macos")]
+mod mac;
+
+#[cfg(target_os = "windows")]
+mod win;
+
 use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
 use serde::Serialize;
+use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial};
 use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
@@ -9,7 +26,6 @@ use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
 use tauri::{AppHandle, Emitter, Manager, State, TitleBarStyle, WebviewUrl, WebviewWindowBuilder};
-use window_vibrancy::*;
 
 thread_local! {
     static AUDIO: (OutputStream, OutputStreamHandle) = OutputStream::try_default().unwrap();
@@ -162,24 +178,34 @@ pub fn run() {
                 .inner_size(800.0, 600.0)
                 .transparent(true);
 
-            // set transparent title bar only when building for macOS
             #[cfg(target_os = "macos")]
             let win_builder = win_builder.title_bar_style(TitleBarStyle::Transparent);
 
             let window: tauri::WebviewWindow = win_builder.build().unwrap();
 
-            #[cfg(target_os = "macos")]
-            apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, None)
-                .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
+            if cfg!(target_os = "macos") {
+                #[cfg(target_os = "macos")]
+                apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, None)
+                    .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");    
 
-            #[cfg(target_os = "windows")]
-            apply_blur(&window, Some((18, 18, 18, 125)))
-                .expect("Unsupported platform! 'apply_blur' is only supported on Windows");
+                #[cfg(target_os = "macos")]
+                use mac::window::setup_traffic_light_positioner;
+
+                #[cfg(target_os = "macos")]
+                setup_traffic_light_positioner(window);
+            } else if cfg!(target_os = "windows") {
+                // #[cfg(target_os = "windows")]
+                // use win::window::setup_win_window;
+
+                // #[cfg(target_os = "windows")]
+                // setup_win_window(app);
+            }
 
             Ok(())
         })
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_window_state::Builder::default().build())
         .invoke_handler(tauri::generate_handler![
             read_mp3_metadata,
             play,
