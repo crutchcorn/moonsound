@@ -1,22 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-#[cfg(target_os = "macos")]
-#[macro_use]
-extern crate cocoa;
-
-#[cfg(target_os = "macos")]
-extern crate objc;
-
-#[cfg(target_os = "macos")]
-mod mac;
-
-#[cfg(target_os = "windows")]
-mod win;
-
 use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
 use serde::Serialize;
-use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial};
 use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
@@ -25,7 +11,9 @@ use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
-use tauri::{AppHandle, Emitter, Manager, State, TitleBarStyle, WebviewUrl, WebviewWindowBuilder};
+use tauri::{AppHandle, Emitter, Manager, State};
+use tauri_plugin_decorum::WebviewWindowExt;
+use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial};
 
 thread_local! {
     static AUDIO: (OutputStream, OutputStreamHandle) = OutputStream::try_default().unwrap();
@@ -170,42 +158,32 @@ fn get_position() -> std::time::Duration {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_window_state::Builder::default().build())
+        .plugin(tauri_plugin_decorum::init()) // initialize the decorum plugin
         .setup(|app| {
             app.manage(Mutex::new(AppData::default()));
 
-            let win_builder = WebviewWindowBuilder::new(app, "main", WebviewUrl::default())
-                .title("Transparent Titlebar Window")
-                .inner_size(800.0, 600.0)
-                .transparent(true);
-
-            #[cfg(target_os = "macos")]
-            let win_builder = win_builder.title_bar_style(TitleBarStyle::Transparent);
-
-            let window: tauri::WebviewWindow = win_builder.build().unwrap();
-
+            // Create a custom titlebar for main window
+            // On Windows this hides decoration and creates custom window controls
+            // On macOS it needs hiddenTitle: true and titleBarStyle: overlay
+            let main_window = app.get_webview_window("main").unwrap();
+            main_window.create_overlay_titlebar().unwrap();
             if cfg!(target_os = "macos") {
-                #[cfg(target_os = "macos")]
-                apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, None)
-                    .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");    
+				main_window.set_traffic_lights_inset(12.0, 16.0).unwrap();
+                main_window.make_transparent().unwrap();
 
                 #[cfg(target_os = "macos")]
-                use mac::window::setup_traffic_light_positioner;
-
-                #[cfg(target_os = "macos")]
-                setup_traffic_light_positioner(window);
+                apply_vibrancy(&main_window, NSVisualEffectMaterial::HudWindow, None, None)
+                    .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
             } else if cfg!(target_os = "windows") {
-                // #[cfg(target_os = "windows")]
-                // use win::window::setup_win_window;
-
-                // #[cfg(target_os = "windows")]
-                // setup_win_window(app);
+                #[cfg(target_os = "windows")]
+                apply_blur(&main_window, Some((18, 18, 18, 125))).expect("Unsupported platform! 'apply_blur' is only supported on Windows");
             }
 
             Ok(())
         })
-        .plugin(tauri_plugin_dialog::init())
-        .plugin(tauri_plugin_opener::init())
-        .plugin(tauri_plugin_window_state::Builder::default().build())
         .invoke_handler(tauri::generate_handler![
             read_mp3_metadata,
             play,

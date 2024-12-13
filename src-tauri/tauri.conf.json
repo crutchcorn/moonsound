@@ -10,10 +10,21 @@
     "frontendDist": "../dist/moonsound/browser"
   },
   "app": {
-    "macOSPrivateApi": true,
+    "withGlobalTauri": true,
     "security": {
       "csp": null
-    }
+    },
+    "windows": [
+      {
+        "fullscreen": false,
+        "resizable": true,
+        "title": "tauri-app",
+        "width": 600,
+        "height": 400,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true
+      }
+    ]
   },
   "bundle": {
     "active": true,
