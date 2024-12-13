@@ -8,7 +8,8 @@ use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
-use tauri::{AppHandle, Emitter, Manager, State};
+use tauri::{AppHandle, Emitter, Manager, State, TitleBarStyle, WebviewUrl, WebviewWindowBuilder};
+use window_vibrancy::*;
 
 thread_local! {
     static AUDIO: (OutputStream, OutputStreamHandle) = OutputStream::try_default().unwrap();
@@ -155,6 +156,26 @@ pub fn run() {
     tauri::Builder::default()
         .setup(|app| {
             app.manage(Mutex::new(AppData::default()));
+
+            let win_builder = WebviewWindowBuilder::new(app, "main", WebviewUrl::default())
+                .title("Transparent Titlebar Window")
+                .inner_size(800.0, 600.0)
+                .transparent(true);
+
+            // set transparent title bar only when building for macOS
+            #[cfg(target_os = "macos")]
+            let win_builder = win_builder.title_bar_style(TitleBarStyle::Transparent);
+
+            let window: tauri::WebviewWindow = win_builder.build().unwrap();
+
+            #[cfg(target_os = "macos")]
+            apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, None)
+                .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
+
+            #[cfg(target_os = "windows")]
+            apply_blur(&window, Some((18, 18, 18, 125)))
+                .expect("Unsupported platform! 'apply_blur' is only supported on Windows");
+
             Ok(())
         })
         .plugin(tauri_plugin_dialog::init())

@@ -2305,6 +2305,7 @@ dependencies = [
 name = "moonsound"
 version = "0.1.0"
 dependencies = [
+ "cocoa",
  "rodio",
  "serde",
  "serde_json",
@@ -2313,6 +2314,7 @@ dependencies = [
  "tauri-build",
  "tauri-plugin-dialog",
  "tauri-plugin-opener",
+ "window-vibrancy",
 ]
 
 [[package]]

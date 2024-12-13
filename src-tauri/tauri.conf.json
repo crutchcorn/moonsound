@@ -10,13 +10,7 @@
     "frontendDist": "../dist/moonsound/browser"
   },
   "app": {
-    "windows": [
-      {
-        "title": "moonsound",
-        "width": 800,
-        "height": 600
-      }
-    ],
+    "macOSPrivateApi": true,
     "security": {
       "csp": null
     }
