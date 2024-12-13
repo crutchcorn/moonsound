@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { invoke } from "@tauri-apps/api/core";
 import { open } from '@tauri-apps/plugin-dialog';
 import { injectMutation, injectQuery } from '@tanstack/angular-query-experimental';
@@ -17,7 +17,12 @@ import { JsonPipe } from '@angular/common';
       <div>Loading...</div>
     } @else {
       <div>Selected File: {{mp3Metadata.data() | json}}</div>
-      <button (click)="openFileMutataion.mutate()">Open File</button>
+      @if (!isPlaying()) {
+        <button (click)="openFileMutataion.mutate()">Open File</button>
+        <button (click)="play()">Play</button>
+      } @else {
+        <button (click)="stop()">Stop</button>
+      }
     }
   }
   `,
@@ -43,4 +48,18 @@ export class Home {
       return invoke<string>("read_mp3_metadata", { path });
     }
   }));
+
+  isPlaying = signal(false);
+
+  play() {
+    invoke("play_sound", {
+      path: this.openFileMutataion.data()
+    });
+    this.isPlaying.set(true);
+  }
+
+  stop() {
+    invoke("stop_sound");
+    this.isPlaying.set(false);
+  }
 }
