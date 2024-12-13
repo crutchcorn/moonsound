@@ -27,13 +27,12 @@ fn read_mp3_metadata(path: &str) -> Result<serde_json::Value, String> {
     let mut probed = symphonia::default::get_probe()
         .format(&hint, mss, &fmt_opts, &meta_opts)
         .expect("unsupported format");
-    
-    let tags = probed.metadata.get().and_then(|mut metadata| {
-        metadata.skip_to_latest().cloned()
-    })
-    .map(|meta_revisions| {
-        meta_revisions.tags().to_vec()
-    });
+
+    let tags = probed
+        .metadata
+        .get()
+        .and_then(|mut metadata| metadata.skip_to_latest().cloned())
+        .map(|meta_revisions| meta_revisions.tags().to_vec());
 
     println!("{:?}", tags);
 
@@ -41,7 +40,11 @@ fn read_mp3_metadata(path: &str) -> Result<serde_json::Value, String> {
     let mut map = serde_json::Map::new();
     if let Some(tags) = tags {
         for tag in tags {
-            map.insert(tag.key.to_string(), serde_json::Value::String(tag.value.to_string()));
+            let key = tag
+                .std_key
+                .map(|k| format!("{:?}", k))
+                .unwrap_or_else(|| tag.key.to_string());
+            map.insert(key, serde_json::Value::String(tag.value.to_string()));
         }
     }
     Ok(serde_json::Value::Object(map))
@@ -50,6 +53,7 @@ fn read_mp3_metadata(path: &str) -> Result<serde_json::Value, String> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![read_mp3_metadata])
         .run(tauri::generate_context!())

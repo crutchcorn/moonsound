@@ -1,17 +1,44 @@
-import { Component, effect } from '@angular/core';
+import { Component } from '@angular/core';
 import { invoke } from "@tauri-apps/api/core";
+import { open } from '@tauri-apps/plugin-dialog';
+import { injectMutation, injectQuery } from '@tanstack/angular-query-experimental';
+import { JsonPipe } from '@angular/common';
 
 @Component({
   selector: 'app-home',
+  imports: [JsonPipe],
   template: `
-   <p>Home</p>
+  @if (!openFileMutataion.data()) {
+   <button (click)="openFileMutataion.mutate()">Open File</button>
+  } @else {
+    @if (openFileMutataion.isError()) {
+      <div>Error: {{openFileMutataion.error()}}</div>
+    } @else if (openFileMutataion.isPending() || mp3Metadata.isPending()) {
+      <div>Loading...</div>
+    } @else {
+      <div>Selected File: {{mp3Metadata.data() | json}}</div>
+    }
+  }
   `,
 })
 export class Home {
-  _mp3 = effect(() => {
-    const path = `/Users/crutchcorn/Documents/cute.mp3`;
-    invoke<string>("read_mp3_metadata", { path }).then((data) => {
-      console.log({data})
-    }).catch(console.error);  
-  })
+  openFileMutataion = injectMutation(() => ({
+    mutationKey: ['openFile'],
+    mutationFn: async () => {
+      const result = await open({
+        multiple: false,
+        directory: false,
+      });
+      return result;
+    }
+  }));
+
+  mp3Metadata = injectQuery(() => ({
+    queryKey: ['mp3Metadata'],
+    queryFn: async () => {
+      const path = this.openFileMutataion.data();
+      if (!path) return null;
+      return invoke<string>("read_mp3_metadata", { path });
+    }
+  }));
 }
