@@ -5,7 +5,7 @@ use crate::state::AppData;
 use super::core;
 
 #[tauri::command]
-pub fn read_mp3_metadata(path: &str) -> Result<serde_json::Value, String> {
+pub fn read_mp3_metadata(path: &str) -> Result<core::MetadataResult, String> {
     core::read_mp3_metadata(path)
 }
 

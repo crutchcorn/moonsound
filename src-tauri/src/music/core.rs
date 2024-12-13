@@ -1,3 +1,4 @@
+use crate::state::AppData;
 use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
 use serde::Serialize;
 use std::fs::File;
@@ -7,7 +8,6 @@ use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
-use crate::state::AppData;
 
 thread_local! {
     static AUDIO: (OutputStream, OutputStreamHandle) = OutputStream::try_default().unwrap();
@@ -23,10 +23,16 @@ pub struct PlayerState {
     pub currently_playing_file_path: Option<String>,
 }
 
-pub fn read_mp3_metadata(path: &str) -> Result<serde_json::Value, String> {
+#[derive(Serialize)]
+pub struct MetadataResult {
+    tags: serde_json::Map<String, serde_json::Value>,
+    visuals: serde_json::Map<String, serde_json::Value>,
+}
+
+pub fn read_mp3_metadata(path: &str) -> Result<MetadataResult, String> {
     let path = Path::new(path);
 
-    let src = std::fs::File::open(path).expect("failed to open media");
+    let src = File::open(path).map_err(|e| e.to_string())?;
     let mss = MediaSourceStream::new(Box::new(src), Default::default());
 
     let mut hint = Hint::new();
@@ -39,23 +45,51 @@ pub fn read_mp3_metadata(path: &str) -> Result<serde_json::Value, String> {
         .format(&hint, mss, &fmt_opts, &meta_opts)
         .expect("unsupported format");
 
-    let tags = probed
+    let revision = probed
         .metadata
         .get()
         .and_then(|mut metadata| metadata.skip_to_latest().cloned())
-        .map(|meta_revisions| meta_revisions.tags().to_vec());
+        .map(|meta_revision| meta_revision.clone())
+        .unwrap();
 
-    let mut map = serde_json::Map::new();
-    if let Some(tags) = tags {
-        for tag in tags {
-            let key = tag
-                .std_key
-                .map(|k| format!("{:?}", k))
-                .unwrap_or_else(|| tag.key.to_string());
-            map.insert(key, serde_json::Value::String(tag.value.to_string()));
-        }
+    let tags = revision.tags();
+    let visuals = revision.visuals();
+
+    let mut tag_map = serde_json::Map::new();
+    let mut visual_map = serde_json::Map::new();
+
+    // Process tags
+    for tag in tags {
+        let key = tag
+            .std_key
+            .map(|k| format!("{:?}", k))
+            .unwrap_or_else(|| tag.key.to_string());
+        tag_map.insert(key, serde_json::Value::String(tag.value.to_string()));
     }
-    Ok(serde_json::Value::Object(map))
+
+    // Process visuals
+    for (index, visual) in visuals.iter().enumerate() {
+        visual_map.insert(
+            format!("visual_{}", index),
+            serde_json::json!({
+                "media_type": visual.media_type.to_string(),
+                "dimensions": format!("{}x{}", visual.dimensions.map_or(0, |d| d.width), visual.dimensions.map_or(0, |d| d.height)),
+                "data": visual.data,
+                "tags": visual.tags.iter().map(|tag| {
+                    let key = tag
+                        .std_key
+                        .map(|k| format!("{:?}", k))
+                        .unwrap_or_else(|| tag.key.to_string());
+                    (key, serde_json::Value::String(tag.value.to_string()))
+                }).collect::<serde_json::Map<String, serde_json::Value>>()
+            })
+        );
+    }
+
+    Ok(MetadataResult {
+        tags: tag_map,
+        visuals: visual_map,
+    })
 }
 
 pub fn play_audio(path: &str) -> Result<(), String> {
@@ -103,4 +137,4 @@ pub fn get_player_state(app_data: &AppData) -> PlayerState {
 
 pub fn get_position() -> std::time::Duration {
     SINK.with(|sink| sink.get_pos())
-} 
+}

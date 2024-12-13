@@ -29,9 +29,10 @@ import { SongMetadata } from '../types/song-metadata';
 
     @if (openFileMutataion.data() && openFileMutataion.isSuccess() && mp3Metadata.isSuccess()) {
 
-      <div>{{ mp3Metadata.data()?.TrackTitle }}</div>
-      <div>{{ mp3Metadata.data()?.AlbumArtist }}</div>
-      <div>{{ mp3Metadata.data()?.Album }}</div>
+      <div style="height: 256px; width: 256px; background-size: cover; background-image: {{mp3CoverImage()}}"></div>
+      <div>{{ mp3Metadata.data()?.tags?.TrackTitle }}</div>
+      <div>{{ mp3Metadata.data()?.tags?.AlbumArtist }}</div>
+      <div>{{ mp3Metadata.data()?.tags?.Album }}</div>
 
       <div>
         @if (stateMetadata().paused) {
@@ -69,9 +70,20 @@ export class Home {
     queryFn: async () => {
       const path = this.openFileMutataion.data();
       if (!path) return null;
+      // TODO: Move invoke to a service
       return invoke<SongMetadata>("read_mp3_metadata", { path });
     }
   }));
+
+  mp3CoverImage = computed(() => {
+    const metadata = this.mp3Metadata.data();
+    if (!metadata) return null;
+    // uint8array to base64
+    const cover = metadata.visuals[Object.keys(metadata.visuals)[0] as keyof typeof metadata.visuals].data;
+    if (!cover) return null;
+    const base64 = btoa(String.fromCharCode(...cover));
+    return `url(data:image/jpeg;base64,${base64})`;
+  });
 
   play() {
     invoke("play", {
