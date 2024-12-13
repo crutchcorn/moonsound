@@ -1,0 +1,1 @@
+export interface SongMetadata { "Album": string, "AlbumArtist": string, "Artist": string, "Comment": string, "Date": string, "IdentIsrc": string, "Lyrics": string, "TXXX:replaygain_album_gain": string, "TXXX:replaygain_track_gain": string, "TXXX:replaygain_track_peak": string, "TrackNumber": string, "TrackTitle": string }

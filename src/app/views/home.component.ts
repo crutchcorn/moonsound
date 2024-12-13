@@ -5,29 +5,48 @@ import { injectMutation, injectQuery } from '@tanstack/angular-query-experimenta
 import { JsonPipe } from '@angular/common';
 import { injectSelector } from '@reduxjs/angular-redux';
 import { RootState } from '../store';
+import { SongMetadata } from '../types/song-metadata';
 
 @Component({
   selector: 'app-home',
   imports: [JsonPipe],
   template: `
-  @if (!openFileMutataion.data()) {
-   <button (click)="openFileMutataion.mutate()">Open File</button>
-  } @else {
-    @if (openFileMutataion.isError()) {
-      <div>Error: {{openFileMutataion.error()}}</div>
-    } @else if (openFileMutataion.isPending() || mp3Metadata.isPending()) {
-      <div>Loading...</div>
-    } @else {
-      <div>Selected File: {{mp3Metadata.data() | json}}</div>
-        <button (click)="openFileMutataion.mutate()">Open File</button>
-        <button (click)="play()">Play</button>
-        <button (click)="stop()">Stop</button>
-        <button (click)="pause()">Pause</button>
-        <button (click)="resume()">Resume</button>
+    @if (!openFileMutataion.data()) {
+      <button (click)="openFileMutataion.mutate()">Play</button>
     }
-  }
+    @if (openFileMutataion.isError()) {
+      <div>Error: {{ openFileMutataion.error | json }}</div>
+    }
+    @if (mp3Metadata.isError()) {
+      <div>Error: {{ mp3Metadata.error | json }}</div>
+    }
+    @if (openFileMutataion.isPending()) {
+      <div>Loading...</div>
+    }
+    @if (mp3Metadata.isLoading()) {
+      <div>Loading song metadata...</div>
+    }
 
-  <code>{{stateMetadata() | json}}</code>
+    @if (openFileMutataion.data() && openFileMutataion.isSuccess() && mp3Metadata.isSuccess()) {
+
+      <div>{{ mp3Metadata.data()?.TrackTitle }}</div>
+      <div>{{ mp3Metadata.data()?.AlbumArtist }}</div>
+      <div>{{ mp3Metadata.data()?.Album }}</div>
+
+      <div>
+        @if (stateMetadata().paused) {
+          <button (click)="resume()">Resume</button>
+        } @else {
+          <button (click)="pause()">Pause</button>
+        }
+
+        @if (stateMetadata().currentlyPlaying === null) {
+          <button (click)="play()">Play</button>
+        } @else {
+          <button (click)="stop()">Stop</button>
+        }
+      </div>
+    }
   `,
 })
 export class Home {
@@ -50,7 +69,7 @@ export class Home {
     queryFn: async () => {
       const path = this.openFileMutataion.data();
       if (!path) return null;
-      return invoke<string>("read_mp3_metadata", { path });
+      return invoke<SongMetadata>("read_mp3_metadata", { path });
     }
   }));
 
