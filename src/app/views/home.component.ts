@@ -1,8 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { invoke } from "@tauri-apps/api/core";
 import { open } from '@tauri-apps/plugin-dialog';
 import { injectMutation, injectQuery } from '@tanstack/angular-query-experimental';
 import { JsonPipe } from '@angular/common';
+import { injectSelector } from '@reduxjs/angular-redux';
+import { RootState } from '../store';
 
 @Component({
   selector: 'app-home',
@@ -17,17 +19,18 @@ import { JsonPipe } from '@angular/common';
       <div>Loading...</div>
     } @else {
       <div>Selected File: {{mp3Metadata.data() | json}}</div>
-      @if (!isPlaying()) {
         <button (click)="openFileMutataion.mutate()">Open File</button>
         <button (click)="play()">Play</button>
-      } @else {
         <button (click)="stop()">Stop</button>
-      }
     }
   }
+
+  <code>{{stateMetadata() | json}}</code>
   `,
 })
 export class Home {
+  stateMetadata = injectSelector((state: RootState) => state.tauri);
+
   openFileMutataion = injectMutation(() => ({
     mutationKey: ['openFile'],
     mutationFn: async () => {
@@ -49,17 +52,13 @@ export class Home {
     }
   }));
 
-  isPlaying = signal(false);
-
   play() {
     invoke("play_sound", {
       path: this.openFileMutataion.data()
     });
-    this.isPlaying.set(true);
   }
 
   stop() {
     invoke("stop_sound");
-    this.isPlaying.set(false);
   }
 }
