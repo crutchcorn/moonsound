@@ -1,8 +1,15 @@
-import {ApplicationConfig, provideExperimentalZonelessChangeDetection} from "@angular/core";
+import { ApplicationConfig, provideExperimentalZonelessChangeDetection } from "@angular/core";
 import { provideRouter } from "@angular/router";
 
 import { routes } from "./app.routes";
+import { provideQueryClient, QueryClient } from "@tanstack/angular-query-experimental";
+
+export const queryClient = new QueryClient();
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideRouter(routes), provideExperimentalZonelessChangeDetection()],
+  providers: [
+    provideRouter(routes),
+    provideExperimentalZonelessChangeDetection(),
+    provideQueryClient(queryClient)
+  ],
 };

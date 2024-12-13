@@ -17,6 +17,7 @@ import { JsonPipe } from '@angular/common';
       <div>Loading...</div>
     } @else {
       <div>Selected File: {{mp3Metadata.data() | json}}</div>
+      <button (click)="openFileMutataion.mutate()">Open File</button>
     }
   }
   `,
@@ -28,13 +29,14 @@ export class Home {
       const result = await open({
         multiple: false,
         directory: false,
+        filters: [{ name: 'MP3', extensions: ['mp3'] }]
       });
       return result;
     }
   }));
 
   mp3Metadata = injectQuery(() => ({
-    queryKey: ['mp3Metadata'],
+    queryKey: ['mp3Metadata', this.openFileMutataion.data()],
     queryFn: async () => {
       const path = this.openFileMutataion.data();
       if (!path) return null;
