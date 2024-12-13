@@ -8,7 +8,7 @@ export interface SongVisualsMetadata {
     "media_type": string,
     // 0x0 ???
     "dimensions": string,
-    "data": number[],
+    "data": string,
     tags: SongVisualsTagsMetadata
 }
 

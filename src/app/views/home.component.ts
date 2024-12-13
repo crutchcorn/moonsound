@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed } from '@angular/core';
 import { invoke } from "@tauri-apps/api/core";
 import { open } from '@tauri-apps/plugin-dialog';
 import { injectMutation, injectQuery } from '@tanstack/angular-query-experimental';
@@ -29,7 +29,9 @@ import { SongMetadata } from '../types/song-metadata';
 
     @if (openFileMutataion.data() && openFileMutataion.isSuccess() && mp3Metadata.isSuccess()) {
 
-      <div style="height: 256px; width: 256px; background-size: cover; background-image: {{mp3CoverImage()}}"></div>
+      @if (mp3CoverImage()) {
+        <div style="height: 256px; width: 256px; background-size: cover; background-image: {{mp3CoverImage()}}"></div>
+      }
       <div>{{ mp3Metadata.data()?.tags?.TrackTitle }}</div>
       <div>{{ mp3Metadata.data()?.tags?.AlbumArtist }}</div>
       <div>{{ mp3Metadata.data()?.tags?.Album }}</div>
@@ -79,10 +81,9 @@ export class Home {
     const metadata = this.mp3Metadata.data();
     if (!metadata) return null;
     // uint8array to base64
-    const cover = metadata.visuals[Object.keys(metadata.visuals)[0] as keyof typeof metadata.visuals].data;
+    const cover = metadata.visuals[Object.keys(metadata.visuals)[0] as keyof typeof metadata.visuals | never]?.data;
     if (!cover) return null;
-    const base64 = btoa(String.fromCharCode(...cover));
-    return `url(data:image/jpeg;base64,${base64})`;
+    return cover;
   });
 
   play() {
