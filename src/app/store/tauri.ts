@@ -1,16 +1,17 @@
 import { createAsyncThunk, createSelector, createSlice } from "@reduxjs/toolkit";
 import { invoke } from "@tauri-apps/api/core";
 
+interface Duration {
+    secs: number;
+    nanos: number;
+}
+
 interface StateFromTauri {
     volume: number;
     speed: number;
     paused: boolean;
     "currently_playing_file_path": string | null;
-}
-
-interface Position {
-    secs: number;
-    nanos: number;
+    "currently_playing_duration": Duration | null;
 }
 
 // Create async thunk for playing music
@@ -24,7 +25,7 @@ export const musicSync = createAsyncThunk(
 export const getPosition = createAsyncThunk(
     "tauri/getPosition",
     async () => {
-        return invoke<Position>("get_position")
+        return invoke<Duration>("get_position")
     }
 );
 
@@ -32,8 +33,9 @@ const initialState = {
     volume: 1,
     speed: 1,
     paused: true,
-    position: { secs: 0, nanos: 0 },
+    position: null as Duration | null,
     currentlyPlaying: null as string | null,
+    duration: null as Duration | null
 }
 
 export const tauriSlice = createSlice({
@@ -46,6 +48,7 @@ export const tauriSlice = createSlice({
             state.speed = action.payload.speed;
             state.paused = action.payload.paused;
             state.currentlyPlaying = action.payload["currently_playing_file_path"];
+            state.duration = action.payload["currently_playing_duration"];
         });
         builder.addCase(getPosition.fulfilled, (state, action) => {
             state.position = action.payload;

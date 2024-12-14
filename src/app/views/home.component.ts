@@ -8,6 +8,7 @@ import { RootState } from '../store';
 import { SongMetadata } from '../types/song-metadata';
 
 @Component({
+  // TODO: Rename from "home" to "now-playing"
   selector: 'app-home',
   imports: [JsonPipe],
   template: `
@@ -48,6 +49,10 @@ import { SongMetadata } from '../types/song-metadata';
         } @else {
           <button (click)="stop()">Stop</button>
         }
+
+        <div>
+          <progress value="{{currentTime()}}" max="{{totalTime()}}"></progress>
+        </div>
       </div>
     }
   `,
@@ -66,6 +71,14 @@ export class Home {
       return result;
     }
   }));
+
+  currentTime = computed(() => {
+    return this.stateMetadata().position?.secs;
+  })
+
+  totalTime = computed(() => {
+    return this.stateMetadata().duration?.secs;
+  })
 
   mp3Metadata = injectQuery(() => ({
     queryKey: ['mp3Metadata', this.openFileMutataion.data()],

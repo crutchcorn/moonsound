@@ -1,10 +1,11 @@
 use crate::state::AppData;
 use base64::{engine::general_purpose::STANDARD as BASE64, Engine};
-use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
+use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink, Source};
 use serde::Serialize;
 use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
+use std::time::Duration;
 use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
@@ -22,6 +23,7 @@ pub struct PlayerState {
     pub speed: f32,
     pub paused: bool,
     pub currently_playing_file_path: Option<String>,
+    pub currently_playing_duration: Option<std::time::Duration>,
 }
 
 #[derive(Serialize)]
@@ -96,13 +98,14 @@ pub fn read_mp3_metadata(path: &str) -> Result<MetadataResult, String> {
     })
 }
 
-pub fn play_audio(path: &str) -> Result<(), String> {
+pub fn play_audio(path: &str) -> Result<Duration, String> {
     let path = Path::new(path);
     let file = BufReader::new(File::open(path).map_err(|e| e.to_string())?);
     let source = Decoder::new(file).map_err(|e| e.to_string())?;
+    let duration = source.total_duration().unwrap_or_default();
 
     SINK.with(|sink| sink.append(source));
-    Ok(())
+    Ok(duration)
 }
 
 pub fn stop() {
@@ -136,6 +139,7 @@ pub fn get_player_state(app_data: &AppData) -> PlayerState {
         speed: sink.speed(),
         paused: sink.is_paused(),
         currently_playing_file_path: app_data.currently_playing_file_path.clone(),
+        currently_playing_duration: app_data.currently_playing_duration.clone(),
     })
 }
 

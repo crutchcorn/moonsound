@@ -14,7 +14,8 @@ pub fn play(app: AppHandle, path: &str, state: State<'_, Mutex<AppData>>) -> Res
     let mut state = state.lock().unwrap();
     state.currently_playing_file_path = Some(path.to_string());
 
-    core::play_audio(path)?;
+    let duration = core::play_audio(path)?;
+    state.currently_playing_duration = Some(duration);
     app.emit("SERVER_SYNC_EVENT", "").unwrap();
     Ok(())
 }
