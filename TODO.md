@@ -1,0 +1,3 @@
+- [ ] Fix major perf problems
+- [ ] Read metadata into database on "import", not as needed
+- [ ] Add splashscreen to hide database initialization
