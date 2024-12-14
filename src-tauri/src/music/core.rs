@@ -10,6 +10,12 @@ use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
 
+thread_local! {
+    static AUDIO: (OutputStream, OutputStreamHandle) = OutputStream::try_default().unwrap();
+    pub static STREAM_HANDLE : OutputStreamHandle = AUDIO.with(|(_, h)| h.clone());
+    pub static SINK: Sink = STREAM_HANDLE.with(|handle| Sink::try_new(handle).unwrap());
+}
+
 #[derive(Serialize)]
 pub struct PlayerState {
     pub volume: f32,
@@ -90,48 +96,49 @@ pub fn read_mp3_metadata(path: &str) -> Result<MetadataResult, String> {
     })
 }
 
-pub fn play_audio(app_data: &AppData, path: &str) -> Result<(), String> {
+pub fn play_audio(path: &str) -> Result<(), String> {
     let path = Path::new(path);
     let file = BufReader::new(File::open(path).map_err(|e| e.to_string())?);
     let source = Decoder::new(file).map_err(|e| e.to_string())?;
 
-    app_data.sink.append(source);
+    SINK.with(|sink| sink.append(source));
     Ok(())
 }
 
-pub fn stop(app_data: &AppData) {
-    app_data.sink.stop();
+pub fn stop() {
+    SINK.with(|sink| sink.stop());
 }
 
-pub fn set_volume(app_data: &AppData, volume: f32) {
-    app_data.sink.set_volume(volume);
+pub fn set_volume(volume: f32) {
+    SINK.with(|sink| sink.set_volume(volume));
 }
 
-pub fn set_speed(app_data: &AppData, speed: f32) {
-    app_data.sink.set_speed(speed);
+pub fn set_speed(speed: f32) {
+    SINK.with(|sink| sink.set_speed(speed));
 }
 
-pub fn seek_to(app_data: &AppData, position: std::time::Duration) -> Result<(), String> {
-    app_data.sink.try_seek(position).map_err(|e| e.to_string())
+pub fn seek_to(position: std::time::Duration) -> Result<(), String> {
+    SINK.with(|sink| sink.try_seek(position))
+        .map_err(|e| e.to_string())
 }
 
-pub fn pause(app_data: &AppData) {
-    app_data.sink.pause();
+pub fn pause() {
+    SINK.with(|sink| sink.pause());
 }
 
-pub fn resume(app_data: &AppData) {
-    app_data.sink.play();
+pub fn resume() {
+    SINK.with(|sink| sink.play());
 }
 
 pub fn get_player_state(app_data: &AppData) -> PlayerState {
-    PlayerState {
-        volume: app_data.sink.volume(),
-        speed: app_data.sink.speed(),
-        paused: app_data.sink.is_paused(),
+    SINK.with(|sink| PlayerState {
+        volume: sink.volume(),
+        speed: sink.speed(),
+        paused: sink.is_paused(),
         currently_playing_file_path: app_data.currently_playing_file_path.clone(),
-    }
+    })
 }
 
-pub fn get_position(app_data: &AppData) -> std::time::Duration {
-    app_data.sink.get_pos()
+pub fn get_position() -> std::time::Duration {
+    SINK.with(|sink| sink.get_pos())
 }
