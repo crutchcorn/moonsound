@@ -51,7 +51,7 @@ import { SongMetadata } from '../types/song-metadata';
         }
 
         <div>
-          <progress value="{{currentTime()}}" max="{{totalTime()}}"></progress>
+          <progress (click)="seekFromProgressBar($event)" value="{{currentTime()}}" max="{{totalTime()}}"></progress>
         </div>
       </div>
     }
@@ -115,5 +115,16 @@ export class Home {
 
   pause() {
     invoke("pause");
+  }
+
+  seekFromProgressBar(event: MouseEvent) {
+    const progressBar = event.target as HTMLProgressElement;
+    const value = event.offsetX / progressBar.offsetWidth * parseInt(progressBar.getAttribute('max') || '0');
+    invoke("seek_to", {
+      position: {
+        secs: Math.floor(value),
+        nanos: 0
+      }
+    });
   }
 }
