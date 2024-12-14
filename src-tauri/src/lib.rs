@@ -4,14 +4,33 @@
 mod music;
 mod state;
 
+use migration::{Migrator, MigratorTrait};
+use sea_orm::Database;
 use std::sync::Mutex;
 use tauri::Manager;
 use tauri_plugin_decorum::WebviewWindowExt;
 use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial};
-use migration::{Migrator, MigratorTrait};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
-pub fn run() {
+pub async fn run() {
+    let app_data_dir = dirs::data_dir()
+        .map(|dir| dir.join("moonsound")).unwrap();
+
+    // If app_data_dir does not exist, create it
+    if !app_data_dir.exists() {
+        std::fs::create_dir_all(&app_data_dir).unwrap();
+    }
+
+    let db_url = format!(
+        "sqlite://{}?mode=rwc",
+        app_data_dir.join("music.db").to_string_lossy()
+    );
+
+    let conn = Database::connect(db_url)
+        .await
+        .expect("Database connection failed");
+    Migrator::up(&conn, None).await.unwrap();
+
     tauri::Builder::default()
         .plugin(tauri_plugin_sql::Builder::new().build())
         .plugin(tauri_plugin_os::init())
@@ -20,7 +39,8 @@ pub fn run() {
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_decorum::init())
         .setup(|app| {
-            app.manage(Mutex::new(state::AppData::default()));
+            let state = Mutex::new(state::AppData::new(conn));
+            app.manage(state);
 
             let main_window = app.get_webview_window("main").unwrap();
             main_window.create_overlay_titlebar().unwrap();
