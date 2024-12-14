@@ -8,10 +8,12 @@ use std::sync::Mutex;
 use tauri::Manager;
 use tauri_plugin_decorum::WebviewWindowExt;
 use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial};
+use migration::{Migrator, MigratorTrait};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_sql::Builder::new().build())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())

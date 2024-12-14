@@ -1,6 +1,6 @@
-use std::sync::Mutex;
-use tauri::{AppHandle, State, Emitter};
 use crate::state::AppData;
+use std::sync::Mutex;
+use tauri::{AppHandle, Emitter, State};
 
 use super::core;
 
@@ -13,7 +13,7 @@ pub fn read_mp3_metadata(path: &str) -> Result<core::MetadataResult, String> {
 pub fn play(app: AppHandle, path: &str, state: State<'_, Mutex<AppData>>) -> Result<(), String> {
     let mut state = state.lock().unwrap();
     state.currently_playing_file_path = Some(path.to_string());
-    
+
     core::play_audio(path)?;
     app.emit("SERVER_SYNC_EVENT", "").unwrap();
     Ok(())
@@ -23,7 +23,7 @@ pub fn play(app: AppHandle, path: &str, state: State<'_, Mutex<AppData>>) -> Res
 pub fn stop(app: AppHandle, state: State<'_, Mutex<AppData>>) {
     let mut state = state.lock().unwrap();
     state.currently_playing_file_path = None;
-    
+
     core::stop();
     app.emit("SERVER_SYNC_EVENT", "").unwrap();
 }
@@ -68,4 +68,4 @@ pub fn get_redux_store_state(state: State<'_, Mutex<AppData>>) -> core::PlayerSt
 #[tauri::command]
 pub fn get_position() -> std::time::Duration {
     core::get_position()
-} 
+}

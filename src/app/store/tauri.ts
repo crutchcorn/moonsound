@@ -1,7 +1,7 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSelector, createSlice } from "@reduxjs/toolkit";
 import { invoke } from "@tauri-apps/api/core";
 
-interface TauriState {
+interface StateFromTauri {
     volume: number;
     speed: number;
     paused: boolean;
@@ -17,7 +17,7 @@ interface Position {
 export const musicSync = createAsyncThunk(
     "tauri/musicSync",
     async () => {
-        return invoke<TauriState>("get_redux_store_state")
+        return invoke<StateFromTauri>("get_redux_store_state")
     }
 );
 
@@ -28,15 +28,17 @@ export const getPosition = createAsyncThunk(
     }
 );
 
+const initialState = {
+    volume: 1,
+    speed: 1,
+    paused: true,
+    position: { secs: 0, nanos: 0 },
+    currentlyPlaying: null as string | null,
+}
+
 export const tauriSlice = createSlice({
     name: "tauri",
-    initialState: {
-        volume: 1,
-        speed: 1,
-        paused: true,
-        position: {secs: 0, nanos: 0},
-        currentlyPlaying: null as string | null,
-    },
+    initialState,
     reducers: {},
     extraReducers: (builder) => {
         builder.addCase(musicSync.fulfilled, (state, action) => {

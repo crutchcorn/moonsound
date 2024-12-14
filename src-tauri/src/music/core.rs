@@ -1,4 +1,5 @@
 use crate::state::AppData;
+use base64::{engine::general_purpose::STANDARD as BASE64, Engine};
 use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
 use serde::Serialize;
 use std::fs::File;
@@ -8,7 +9,6 @@ use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
-use base64::{engine::general_purpose::STANDARD as BASE64, Engine};
 
 thread_local! {
     static AUDIO: (OutputStream, OutputStreamHandle) = OutputStream::try_default().unwrap();
@@ -72,7 +72,7 @@ pub fn read_mp3_metadata(path: &str) -> Result<MetadataResult, String> {
     for (index, visual) in visuals.iter().enumerate() {
         let base64_data = BASE64.encode(&visual.data);
         let data_url = format!("url(data:{};base64,{})", visual.media_type, base64_data);
-        
+
         visual_map.insert(
             format!("visual_{}", index),
             serde_json::json!({
