@@ -32,7 +32,6 @@ pub async fn run() {
     Migrator::up(&conn, None).await.unwrap();
 
     tauri::Builder::default()
-        .plugin(tauri_plugin_sql::Builder::new().build())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
