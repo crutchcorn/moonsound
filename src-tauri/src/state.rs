@@ -9,8 +9,14 @@ pub struct AppData {
     pub conn: DatabaseConnection,
 }
 
+pub struct AppDataNew {
+    pub conn: DatabaseConnection,
+    pub stream_handle: OutputStreamHandle,
+}
+
 impl AppData {
-    pub fn new(conn: DatabaseConnection, stream_handle: OutputStreamHandle) -> Self {
+    pub fn new(args: AppDataNew) -> Self {
+        let AppDataNew { conn, stream_handle } = args;
         let sink: Sink = Sink::try_new(&stream_handle).unwrap();
 
         Self {

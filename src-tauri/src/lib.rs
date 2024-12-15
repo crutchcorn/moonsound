@@ -6,6 +6,7 @@ mod state;
 
 use migration::{Migrator, MigratorTrait};
 use sea_orm::Database;
+use state::AppDataNew;
 use std::sync::Mutex;
 use rodio::OutputStream;
 use tauri::{Manager, Theme};
@@ -40,7 +41,7 @@ pub async fn run() {
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_decorum::init())
         .setup(|app| {
-            let state = Mutex::new(state::AppData::new(conn, stream_handle));
+            let state = Mutex::new(state::AppData::new(AppDataNew { conn, stream_handle }));
             app.manage(state);
 
             let main_window = app.get_webview_window("main").unwrap();
