@@ -133,6 +133,7 @@ pub fn play_audio(
     // Periodic access is closed when the sink is stopped (Is this correct?)
     let periodic_access = source.periodic_access(Duration::from_secs(1), on_periodic);
 
+    app_data.sink.clear();
     app_data.sink.append(periodic_access);
 
     Ok(duration)
