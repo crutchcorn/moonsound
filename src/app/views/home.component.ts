@@ -1,5 +1,4 @@
 import {Component, computed, inject, input} from '@angular/core';
-import {JsonPipe} from '@angular/common';
 import {injectSelector} from '@reduxjs/angular-redux';
 import {RootState} from '../store';
 import {pause, play, resume, seek} from "../services/music";
@@ -60,7 +59,7 @@ class AppHomeMaterial {
           position: relative;
           width: fit-content;
           --border-size: 10px;
-          --art-size: 256px;
+          --art-size: 212px;
           --border-radius: 16px;
           height: var(--art-size);
           width: var(--art-size);
@@ -110,51 +109,128 @@ export class AlbumArt {
 @Component({
   // TODO: Rename from "home" to "now-playing"
   selector: 'app-home',
-  imports: [AppHomeMaterial, AlbumArt, JsonPipe],
+  imports: [AppHomeMaterial, AlbumArt],
   template: `
       <app-home-material>
-          <album-art [src]="stateMetadata.mp3CoverImage()"></album-art>
-
-          @if (!openFileMutation.data()) {
-              <button (click)="openFileMutation.mutate()">Play</button>
-          }
-          @if (openFileMutation.isError()) {
-              <div>Error: {{ openFileMutation.error | json }}</div>
-          }
-          @if (stateMetadata.mp3Metadata.isError()) {
-              <div>Error: {{ stateMetadata.mp3Metadata.error | json }}</div>
-          }
-          @if (openFileMutation.isPending()) {
-              <div>Loading...</div>
-          }
-          @if (stateMetadata.mp3Metadata.isLoading()) {
-              <div>Loading song metadata...</div>
-          }
-
-          @if (openFileMutation.data() && stateMetadata.mp3Metadata.isSuccess() && openFileMutation.isSuccess()) {
-
-              @if (stateMetadata.mp3CoverImage()) {
-                  <div style="height: 256px; width: 256px; background-size: cover; background-image: {{stateMetadata.mp3CoverImage()}}"></div>
+          <div class="container">
+              @if (!openFileMutation.data()) {
+                  <button (click)="openFileMutation.mutate()">Play</button>
               }
-              <div>{{ stateMetadata.mp3Metadata.data()?.tags?.TrackTitle }}</div>
-              <div>{{ stateMetadata.mp3Metadata.data()?.tags?.AlbumArtist }}</div>
-              <div>{{ stateMetadata.mp3Metadata.data()?.tags?.Album }}</div>
 
-              <div>
-                  @if (playingMetadata().paused) {
-                      <button (click)="resume()">Resume</button>
-                  } @else {
-                      <button (click)="pause()">Pause</button>
-                  }
+              @if (openFileMutation.data() && stateMetadata.mp3Metadata.isSuccess() && openFileMutation.isSuccess()) {
+                  <album-art [src]="stateMetadata.mp3CoverImage()"></album-art>
+                  <div class="infoContainer">
+                      <div class="textContainer">
+                          <h1 class="title">{{ stateMetadata.mp3Metadata.data()?.tags?.TrackTitle }}</h1>
+                          <p class="artist">{{ stateMetadata.mp3Metadata.data()?.tags?.AlbumArtist }}</p>
+                          <p class="album">{{ stateMetadata.mp3Metadata.data()?.tags?.Album }}</p>
+                      </div>
 
-                  <div>
-                      <progress (click)="seekFromProgressBar($event)" value="{{currentTime()}}"
-                                max="{{totalTime()}}"></progress>
+                      <div class="progressContainer">
+                          <progress class="progressBar" (click)="seekFromProgressBar($event)" value="{{currentTime()}}"
+                                    max="{{totalTime()}}"></progress>
+                      </div>
+
+                      <div>
+                          @if (playingMetadata().paused) {
+                              <button (click)="resume()">Resume</button>
+                          } @else {
+                              <button (click)="pause()">Pause</button>
+                          }
+                      </div>
                   </div>
-              </div>
-          }
+              }
+          </div>
       </app-home-material>
-  `
+  `,
+  styles: [`
+      .container {
+          padding: 24px;
+          display: flex;
+          flex-direction: row;
+          overflow: hidden;
+          justify-content: center;
+          align-items: center;
+          /* 32 because of top area */
+          height: calc(100vh - 32px);
+          box-sizing: border-box;
+      }
+
+      .infoContainer {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+          justify-content: center;
+          align-items: center;
+          padding: 0 32px;
+          text-align: center;
+          width: 1px;
+          flex-grow: 1;
+      }
+
+      .textContainer {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          justify-content: center;
+          align-items: center;
+          width: 100%;
+      }
+
+      .title {
+          font-size: 24px;
+          font-weight: bold;
+          margin: 0;
+          color: white;
+          width: 100%;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+      }
+
+      .artist {
+          font-size: 16px;
+          margin: 0;
+          color: white;
+          opacity: 0.8;
+      }
+
+      .album {
+          font-size: 16px;
+          margin: 0;
+          color: white;
+          opacity: 0.8;
+      }
+
+      .progressContainer {
+          width: 100%;
+      }
+
+      .progressBar {
+          border-radius: 1.5rem;
+          width: 100%;
+          box-shadow: 0px -0.5px 1px 0px rgba(255, 255, 255, 0.30) inset, 0px -0.5px 1px 0px rgba(255, 255, 255, 0.25) inset, 0px 1.5px 4px 0px rgba(0, 0, 0, 0.08) inset, 0px 1.5px 4px 0px rgba(0, 0, 0, 0.10) inset;
+          background-blend-mode: plus-darker;
+          height: 0.5rem;
+          appearance: none;
+      }
+
+      .progressBar::-webkit-progress-bar {
+          height: 100%;
+          background: rgba(0, 0, 0, 0.12);
+          padding: 0;
+          margin: 0;
+      }
+
+      .progressBar::-webkit-progress-value {
+          border-radius: 1.25rem;
+          background: rgba(255, 255, 255, 0.80);
+          mix-blend-mode: plus-lighter;
+          height: 100%;
+          padding: 0;
+          margin: 0;
+      }
+  `]
 })
 export class Home {
   playingMetadata = injectSelector((state: RootState) => state.tauri);

@@ -1,4 +1,5 @@
 - [x] Fix major perf problems
 - [x] Stop using local threads
+- [ ] Window controls are dark on dark theme
 - [ ] Read metadata into database on "import", not as needed
 - [ ] Add splashscreen to hide database initialization
