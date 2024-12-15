@@ -16,7 +16,6 @@ pub struct AppData {
     pub stream_handle: OutputStreamHandle,
     pub sink: Sink,
     pub conn: DatabaseConnection,
-    pub periodic_access: Mutex<Option<PeriodicAccess<Decoder<BufReader<File>>, PeriodicCallback>>>
 }
 
 pub struct AppDataNew {
@@ -36,8 +35,7 @@ impl AppData {
                 currently_playing_file_path: None,
             }),
             sink,
-            stream_handle,
-            periodic_access: Mutex::new(None),
+            stream_handle
         }
     }
 }

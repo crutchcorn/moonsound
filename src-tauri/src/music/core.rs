@@ -100,7 +100,7 @@ pub fn play_audio(app_data: &AppData, path: &str, on_periodic: PeriodicCallback)
     let duration = source.total_duration().unwrap_or_default();
 
     // Periodic access is closed when the sink is stopped (Is this correct?)
-    let periodic_access = source.periodic_access(Duration::from_millis(50), on_periodic);
+    let periodic_access = source.periodic_access(Duration::from_secs(1), on_periodic);
 
     app_data.sink.append(periodic_access);
 
