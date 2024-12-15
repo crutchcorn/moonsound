@@ -1,9 +1,9 @@
 import { Routes } from "@angular/router";
-import {Home} from "./views/home.component";
+import {CurrentlyPlaying} from "./views/currently-playing.component";
 
 export const routes: Routes = [
   {
     path: "",
-    component: Home
+    component: CurrentlyPlaying
   }
 ];

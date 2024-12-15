@@ -7,7 +7,7 @@ import {Metadata} from "../injectables/metadata";
 import {injectMutation} from "@tanstack/angular-query-experimental";
 
 @Component({
-  selector: "app-home-material",
+  selector: "currently-playing-material",
   template: `
       <div class="coverImgBg" style="background-image: {{stateMetadata.mp3CoverImage()}}"></div>
       <div class="scrim"></div>
@@ -41,7 +41,7 @@ import {injectMutation} from "@tanstack/angular-query-experimental";
       }
   `]
 })
-class AppHomeMaterial {
+class CurrentlyPlayingMaterial {
   stateMetadata = inject(Metadata);
 }
 
@@ -109,9 +109,9 @@ export class AlbumArt {
 @Component({
   // TODO: Rename from "home" to "now-playing"
   selector: 'app-home',
-  imports: [AppHomeMaterial, AlbumArt],
+  imports: [CurrentlyPlayingMaterial, AlbumArt],
   template: `
-      <app-home-material>
+      <currently-playing-material>
           <div class="container">
               @if (!openFileMutation.data()) {
                   <button (click)="openFileMutation.mutate()">Play</button>
@@ -141,7 +141,7 @@ export class AlbumArt {
                   </div>
               }
           </div>
-      </app-home-material>
+      </currently-playing-material>
   `,
   styles: [`
       .container {
@@ -232,7 +232,7 @@ export class AlbumArt {
       }
   `]
 })
-export class Home {
+export class CurrentlyPlaying {
   playingMetadata = injectSelector((state: RootState) => state.tauri);
   stateMetadata = inject(Metadata);
 
