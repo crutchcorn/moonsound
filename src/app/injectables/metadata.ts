@@ -5,6 +5,8 @@ import {injectQuery} from "@tanstack/angular-query-experimental";
 import {invoke} from "@tauri-apps/api/core";
 import {SongMetadata} from "../types/song-metadata";
 
+const defaultCover = "url('/assets/default_album_art.svg')";
+
 // TODO: Remove this in favor of using the `@reduxjs/toolkit` package and RTK Query (not out yet for Angular)
 @Injectable({providedIn: null})
 export class Metadata {
@@ -21,9 +23,9 @@ export class Metadata {
 
   mp3CoverImage = computed(() => {
     const metadata = this.mp3Metadata.data();
-    if (!metadata) return null;
+    if (!metadata) return defaultCover;
     const cover = metadata.visuals[Object.keys(metadata.visuals)[0] as keyof typeof metadata.visuals | never]?.data;
-    if (!cover) return null;
+    if (!cover) return defaultCover;
     // url(base64)
     return cover;
   });

@@ -121,9 +121,9 @@ export class AlbumArt {
                   <album-art [src]="stateMetadata.mp3CoverImage()"></album-art>
                   <div class="infoContainer">
                       <div class="textContainer">
-                          <h1 class="title">{{ stateMetadata.mp3Metadata.data()?.tags?.TrackTitle }}</h1>
-                          <p class="artist">{{ stateMetadata.mp3Metadata.data()?.tags?.AlbumArtist }}</p>
-                          <p class="album">{{ stateMetadata.mp3Metadata.data()?.tags?.Album }}</p>
+                          <h1 class="title">{{ stateMetadata.mp3Metadata.data()?.tags?.TrackTitle ?? "Unknown Title" }}</h1>
+                          <p class="artist">{{ stateMetadata.mp3Metadata.data()?.tags?.AlbumArtist ?? "Unknown Artist" }}</p>
+                          <p class="album">{{ stateMetadata.mp3Metadata.data()?.tags?.Album ?? "Unknown Album" }}</p>
                       </div>
 
                       <div class="progressContainer">
