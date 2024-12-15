@@ -6,6 +6,10 @@ import {pickSong} from "../services/fs";
 import {Metadata} from "../injectables/metadata";
 import {injectMutation} from "@tanstack/angular-query-experimental";
 
+function zeroPad(num: number, places: number) {
+  return String(num).padStart(places, '0');
+}
+
 @Component({
   selector: "currently-playing-material",
   template: `
@@ -127,16 +131,26 @@ export class AlbumArt {
                       </div>
 
                       <div class="progressContainer">
-                          <progress class="progressBar" (click)="seekFromProgressBar($event)" value="{{currentTime()}}"
-                                    max="{{totalTime()}}"></progress>
+                          <div class="progressTextContainer">
+                              <p class="progressText">{{ currentTimeFormatted() }}</p>
+                              <p class="progressText">{{ totalTimeFormatted() }}</p>
+                          </div>
+                          <progress class="progressBar" (click)="seekFromProgressBar($event)" value="{{currentSecs()}}"
+                                    max="{{totalSecs()}}"></progress>
                       </div>
 
                       <div>
-                          @if (playingMetadata().paused) {
-                              <button (click)="resume()">Resume</button>
-                          } @else {
-                              <button (click)="pause()">Pause</button>
-                          }
+                          <div class="playPauseBtnContainer">
+                              @if (playingMetadata().paused) {
+                                  <button class="playPauseBtn" (click)="resume()">
+                                  </button>
+                                  <img class="playPauseIcon" src="/assets/play_icon.svg" alt="Play"/>
+                              } @else {
+                                  <button class="playPauseBtn" (click)="pause()">
+                                  </button>
+                                  <img class="playPauseIcon" src="/assets/pause_icon.svg" alt="Pause"/>
+                              }
+                          </div>
                       </div>
                   </div>
               }
@@ -204,8 +218,23 @@ export class AlbumArt {
 
       .progressContainer {
           width: 100%;
+          padding: 8px 0;
+          flex-direction: column;
+          gap: 8px;
       }
 
+      .progressTextContainer {
+          display: flex;
+          justify-content: space-between;
+      }
+      
+      .progressText {
+          font-size: 14px;
+          color: white;
+          opacity: 0.5;
+          margin: 0;
+      }
+      
       .progressBar {
           border-radius: 1.5rem;
           width: 100%;
@@ -230,6 +259,36 @@ export class AlbumArt {
           padding: 0;
           margin: 0;
       }
+
+      .playPauseBtnContainer {
+          position: relative;
+          width: fit-content;
+          margin: -12px 0;
+      }
+
+      .playPauseBtn {
+          height: 72px;
+          width: 72px;
+          border-radius: 2.125rem;
+          border: 1px solid var(--Angled-Stroke, rgba(255, 255, 255, 0.20));
+          aspect-ratio: 1;
+          background: #FFF;
+          mix-blend-mode: overlay;
+
+          /* Blur + Shadow Big */
+          box-shadow: 0px 7px 10px 0px rgba(0, 0, 0, 0.05), 0px 40px 80px 0px rgba(0, 0, 0, 0.08);
+          backdrop-filter: blur(50px);
+      }
+
+      .playPauseIcon {
+          pointer-events: none;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 32px;
+          height: 32px;
+      }
   `]
 })
 export class CurrentlyPlaying {
@@ -248,12 +307,54 @@ export class CurrentlyPlaying {
     }
   }))
 
-  currentTime = computed(() => {
-    return this.playingMetadata().position?.secs;
+  totalSecs = computed(() => {
+    return this.playingMetadata().duration?.secs;
   })
 
+  currentSecs = computed(() => {
+    return this.playingMetadata().position?.secs;
+  });
+
   totalTime = computed(() => {
-    return this.playingMetadata().duration?.secs;
+    // Format as `hh:mm:ss` but only show minutes and hours if they are non-zero
+    const duration = this.playingMetadata().duration?.secs;
+    if (!duration) {
+      return {
+        hours: 0,
+        minutes: 0,
+        seconds: 0
+      };
+    }
+    // Format
+    const hours = Math.floor(duration / 3600);
+    const minutes = Math.floor(duration / 60) % 60;
+    const seconds = duration % 60;
+    return {
+      hours,
+      minutes,
+      seconds
+    }
+  })
+
+  totalTimeFormatted = computed(() => {
+    const duration = this.totalTime();
+    return `${duration.hours ? duration.hours + ':' : ''}${zeroPad(duration.minutes, 2)}:${zeroPad(duration.seconds, 2)}`;
+  });
+
+  currentTimeFormatted = computed(() => {
+    // Format as `hh:mm:ss` but only if `totalTime` has an hour or minute value
+    const totalDuration = this.totalTime();
+    const duration = this.playingMetadata().position?.secs;
+    if (!duration) {
+      return '0:00';
+    }
+    // Format
+    const hours = Math.floor(duration / 3600);
+    const minutes = Math.floor(duration / 60) % 60;
+    const seconds = duration % 60;
+    const showHours = totalDuration.hours > 0 || hours > 0;
+    const showMinutes = totalDuration.minutes > 0 || minutes > 0;
+    return `${showHours ? hours + ':' : ''}${showMinutes ? zeroPad(minutes, 2) : ''}:${zeroPad(seconds, 2)}`;
   })
 
   resume = resume;
