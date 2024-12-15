@@ -64,6 +64,7 @@ export class Home {
         return;
       }
       await play(path);
+      return true
     }
   }))
 
