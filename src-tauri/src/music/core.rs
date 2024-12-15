@@ -127,12 +127,13 @@ pub fn resume(app_data: &AppData) {
 }
 
 pub fn get_player_state(app_data: &AppData) -> PlayerState {
+    let metadata = app_data.metadata.lock().unwrap();
     PlayerState {
         volume: app_data.sink.volume(),
         speed: app_data.sink.speed(),
         paused: app_data.sink.is_paused(),
-        currently_playing_file_path: app_data.currently_playing_file_path.clone(),
-        currently_playing_duration: app_data.currently_playing_duration.clone(),
+        currently_playing_file_path: metadata.currently_playing_file_path.clone(),
+        currently_playing_duration: metadata.currently_playing_duration.clone(),
     }
 }
 

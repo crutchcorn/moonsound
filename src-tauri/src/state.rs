@@ -1,11 +1,16 @@
-use rodio::{OutputStream, OutputStreamHandle, Sink};
+use rodio::{OutputStreamHandle, Sink};
 use sea_orm::DatabaseConnection;
+use std::sync::Mutex;
+
+pub struct AppMetadata {
+    pub currently_playing_file_path: Option<String>,
+    pub currently_playing_duration: Option<std::time::Duration>,
+}
 
 pub struct AppData {
-    pub currently_playing_file_path: Option<String>,
+    pub metadata: Mutex<AppMetadata>,
     pub stream_handle: OutputStreamHandle,
     pub sink: Sink,
-    pub currently_playing_duration: Option<std::time::Duration>,
     pub conn: DatabaseConnection,
 }
 
@@ -21,8 +26,10 @@ impl AppData {
 
         Self {
             conn,
-            currently_playing_duration: None,
-            currently_playing_file_path: None,
+            metadata: Mutex::new(AppMetadata {
+                currently_playing_duration: None,
+                currently_playing_file_path: None,
+            }),
             sink,
             stream_handle,
         }
