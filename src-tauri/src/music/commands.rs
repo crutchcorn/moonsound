@@ -1,5 +1,9 @@
 use crate::state::AppData;
-use tauri::{AppHandle, Emitter, State};
+use rodio::Decoder;
+use tauri::{AppHandle, Emitter, Manager, State};
+
+use std::fs::File;
+use std::io::BufReader;
 
 use super::core;
 
@@ -13,7 +17,14 @@ pub fn play(app: AppHandle, path: &str, state: State<'_, AppData>) -> Result<(),
     let mut metadata = state.metadata.lock().unwrap();
     metadata.currently_playing_file_path = Some(path.to_string());
 
-    let duration = core::play_audio(&state, path)?;
+    let app_handle = app.clone();
+    let callback = Box::new(move |_source: &mut Decoder<BufReader<File>>| {
+        app_handle
+            .emit("PLAYBACK_POSITION_UPDATE", app_handle.state::<AppData>().sink.get_pos())
+            .unwrap();
+    });
+
+    let duration = core::play_audio(&state, path, callback)?;
     metadata.currently_playing_duration = Some(duration);
     app.emit("SERVER_SYNC_EVENT", "").unwrap();
     Ok(())

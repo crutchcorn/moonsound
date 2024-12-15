@@ -2,8 +2,8 @@ import { Component, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { injectDispatch, injectSelector } from "@reduxjs/angular-redux";
-import { listen } from '@tauri-apps/api/event';
-import { getPosition, musicSync } from './store/tauri';
+import {Event, listen} from '@tauri-apps/api/event';
+import {setPosition, musicSync, Duration} from './store/tauri';
 import { AppDispatch, RootState } from './store';
 import { UnderTitlebar } from './components/under-titlebar.component';
 
@@ -41,12 +41,17 @@ export class App {
   _getPos = effect((onCleanup) => {
     if (this.tauri().paused) return;
     if (this.tauri().currentlyPlaying === null) return;
-    const interval = setInterval(() => {
-      this.dispatch(getPosition());
-    }, 1000);
+
+    let unlisten = () => { };
+
+    listen('PLAYBACK_POSITION_UPDATE', (event: Event<Duration>) => {
+      this.dispatch(setPosition(event.payload));
+    }).then((listener) => {
+      unlisten = listener;
+    });
 
     onCleanup(() => {
-      clearInterval(interval)
+        unlisten();
     });
   })
 }

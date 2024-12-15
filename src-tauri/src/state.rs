@@ -1,6 +1,10 @@
-use rodio::{OutputStreamHandle, Sink};
+use std::fs::File;
+use std::io::BufReader;
+use rodio::{Decoder, OutputStreamHandle, Sink};
 use sea_orm::DatabaseConnection;
 use std::sync::Mutex;
+use rodio::source::PeriodicAccess;
+use crate::music::types::PeriodicCallback;
 
 pub struct AppMetadata {
     pub currently_playing_file_path: Option<String>,
@@ -12,6 +16,7 @@ pub struct AppData {
     pub stream_handle: OutputStreamHandle,
     pub sink: Sink,
     pub conn: DatabaseConnection,
+    pub periodic_access: Mutex<Option<PeriodicAccess<Decoder<BufReader<File>>, PeriodicCallback>>>
 }
 
 pub struct AppDataNew {
@@ -32,6 +37,7 @@ impl AppData {
             }),
             sink,
             stream_handle,
+            periodic_access: Mutex::new(None),
         }
     }
 }

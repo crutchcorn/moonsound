@@ -1,6 +1,6 @@
 use crate::state::AppData;
 use base64::{engine::general_purpose::STANDARD as BASE64, Engine};
-use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink, Source};
+use rodio::{Decoder, Source};
 use serde::Serialize;
 use std::fs::File;
 use std::io::BufReader;
@@ -10,6 +10,7 @@ use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
+use crate::music::types::PeriodicCallback;
 
 #[derive(Serialize)]
 pub struct PlayerState {
@@ -92,13 +93,17 @@ pub fn read_mp3_metadata(path: &str) -> Result<MetadataResult, String> {
     })
 }
 
-pub fn play_audio(app_data: &AppData, path: &str) -> Result<Duration, String> {
+pub fn play_audio(app_data: &AppData, path: &str, on_periodic: PeriodicCallback) -> Result<Duration, String> {
     let path = Path::new(path);
     let file = BufReader::new(File::open(path).map_err(|e| e.to_string())?);
     let source = Decoder::new(file).map_err(|e| e.to_string())?;
     let duration = source.total_duration().unwrap_or_default();
 
-    app_data.sink.append(source);
+    // Periodic access is closed when the sink is stopped (Is this correct?)
+    let periodic_access = source.periodic_access(Duration::from_millis(50), on_periodic);
+
+    app_data.sink.append(periodic_access);
+
     Ok(duration)
 }
 

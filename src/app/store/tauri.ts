@@ -1,7 +1,7 @@
-import { createAsyncThunk, createSelector, createSlice } from "@reduxjs/toolkit";
+import {createAsyncThunk, createSelector, createSlice, PayloadAction} from "@reduxjs/toolkit";
 import { invoke } from "@tauri-apps/api/core";
 
-interface Duration {
+export interface Duration {
     secs: number;
     nanos: number;
 }
@@ -22,13 +22,6 @@ export const musicSync = createAsyncThunk(
     }
 );
 
-export const getPosition = createAsyncThunk(
-    "tauri/getPosition",
-    async () => {
-        return invoke<Duration>("get_position")
-    }
-);
-
 const initialState = {
     volume: 1,
     speed: 1,
@@ -41,7 +34,11 @@ const initialState = {
 export const tauriSlice = createSlice({
     name: "tauri",
     initialState,
-    reducers: {},
+    reducers: {
+        setPosition: (state, action: PayloadAction<Duration>) => {
+            state.position = action.payload
+        }
+    },
     extraReducers: (builder) => {
         builder.addCase(musicSync.fulfilled, (state, action) => {
             state.volume = action.payload.volume;
@@ -50,11 +47,10 @@ export const tauriSlice = createSlice({
             state.currentlyPlaying = action.payload["currently_playing_file_path"];
             state.duration = action.payload["currently_playing_duration"];
         });
-        builder.addCase(getPosition.fulfilled, (state, action) => {
-            state.position = action.payload;
-        });
         // TODO: Add error handling
     }
 });
+
+export const {setPosition} = tauriSlice.actions;
 
 export default tauriSlice.reducer;
