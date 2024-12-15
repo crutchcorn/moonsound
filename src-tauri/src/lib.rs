@@ -7,14 +7,13 @@ mod state;
 use migration::{Migrator, MigratorTrait};
 use sea_orm::Database;
 use std::sync::Mutex;
-use tauri::Manager;
+use tauri::{Manager, Theme};
 use tauri_plugin_decorum::WebviewWindowExt;
-use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial};
+use window_vibrancy::{apply_mica, apply_vibrancy, NSVisualEffectMaterial};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub async fn run() {
-    let app_data_dir = dirs::data_dir()
-        .map(|dir| dir.join("moonsound")).unwrap();
+    let app_data_dir = dirs::data_dir().map(|dir| dir.join("moonsound")).unwrap();
 
     // If app_data_dir does not exist, create it
     if !app_data_dir.exists() {
@@ -44,6 +43,7 @@ pub async fn run() {
             let main_window = app.get_webview_window("main").unwrap();
             main_window.create_overlay_titlebar().unwrap();
             if cfg!(target_os = "macos") {
+                #[cfg(target_os = "macos")]
                 main_window.make_transparent().unwrap();
 
                 #[cfg(target_os = "macos")]
@@ -51,8 +51,15 @@ pub async fn run() {
                     .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
             } else if cfg!(target_os = "windows") {
                 #[cfg(target_os = "windows")]
-                apply_blur(&main_window, Some((18, 18, 18, 125)))
-                    .expect("Unsupported platform! 'apply_blur' is only supported on Windows");
+                apply_mica(
+                    &main_window,
+                    if main_window.theme().unwrap() == Theme::Dark {
+                        Some(true)
+                    } else {
+                        None
+                    },
+                )
+                .expect("Unsupported platform! 'apply_mica' is only supported on Windows");
             }
 
             Ok(())
