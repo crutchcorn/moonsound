@@ -26,7 +26,7 @@ tauri = { version = "2.1.1", features = [] }
 tauri-plugin-opener = "2.2.1"
 serde = { version = "1.0.216", features = ["derive"] }
 serde_json = "1.0.133"
-symphonia = { version = "0.5.4", features = ["all"] }
+symphonia = { git = "https://github.com/pdeljanov/Symphonia.git", branch = "dev-0.6", features = ["all"] }
 tauri-plugin-dialog = "2.2.0"
 rodio = {version = "0.20.1", features = ["symphonia-all"] }
 window-vibrancy = "0.5.2"

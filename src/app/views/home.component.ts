@@ -12,23 +12,23 @@ import { SongMetadata } from '../types/song-metadata';
   selector: 'app-home',
   imports: [JsonPipe],
   template: `
-    @if (!openFileMutataion.data()) {
-      <button (click)="openFileMutataion.mutate()">Play</button>
+    @if (!openFileMutation.data()) {
+      <button (click)="openFileMutation.mutate()">Play</button>
     }
-    @if (openFileMutataion.isError()) {
-      <div>Error: {{ openFileMutataion.error | json }}</div>
+    @if (openFileMutation.isError()) {
+      <div>Error: {{ openFileMutation.error | json }}</div>
     }
     @if (mp3Metadata.isError()) {
       <div>Error: {{ mp3Metadata.error | json }}</div>
     }
-    @if (openFileMutataion.isPending()) {
+    @if (openFileMutation.isPending()) {
       <div>Loading...</div>
     }
     @if (mp3Metadata.isLoading()) {
       <div>Loading song metadata...</div>
     }
 
-    @if (openFileMutataion.data() && openFileMutataion.isSuccess() && mp3Metadata.isSuccess()) {
+    @if (openFileMutation.data() && openFileMutation.isSuccess() && mp3Metadata.isSuccess()) {
 
       @if (mp3CoverImage()) {
         <div style="height: 256px; width: 256px; background-size: cover; background-image: {{mp3CoverImage()}}"></div>
@@ -60,7 +60,7 @@ import { SongMetadata } from '../types/song-metadata';
 export class Home {
   stateMetadata = injectSelector((state: RootState) => state.tauri);
 
-  openFileMutataion = injectMutation(() => ({
+  openFileMutation = injectMutation(() => ({
     mutationKey: ['openFile'],
     mutationFn: async () => {
       const result = await open({
@@ -81,12 +81,12 @@ export class Home {
   })
 
   mp3Metadata = injectQuery(() => ({
-    queryKey: ['mp3Metadata', this.openFileMutataion.data()],
+    queryKey: ['mp3Metadata', this.openFileMutation.data()],
     queryFn: async () => {
-      const path = this.openFileMutataion.data();
+      const path = this.openFileMutation.data();
       if (!path) return null;
       // TODO: Move invoke to a service
-      return invoke<SongMetadata>("read_metadata", { path });
+      return await invoke<SongMetadata>("read_metadata", { path });
     }
   }));
 
@@ -101,7 +101,7 @@ export class Home {
 
   play() {
     invoke("play", {
-      path: this.openFileMutataion.data()
+      path: this.openFileMutation.data()
     });
   }
 
