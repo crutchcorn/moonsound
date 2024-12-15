@@ -7,6 +7,7 @@ pub struct Model {
     #[sea_orm(primary_key)]
     #[serde(skip_deserializing)]
     pub id: i32,
+    // Location on the filesystem path
     pub path: String,
 }
 
