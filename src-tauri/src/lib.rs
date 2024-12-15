@@ -7,6 +7,7 @@ mod state;
 use migration::{Migrator, MigratorTrait};
 use sea_orm::Database;
 use std::sync::Mutex;
+use rodio::OutputStream;
 use tauri::{Manager, Theme};
 use tauri_plugin_decorum::WebviewWindowExt;
 use window_vibrancy::{apply_mica, apply_vibrancy, NSVisualEffectMaterial};
@@ -30,6 +31,8 @@ pub async fn run() {
         .expect("Database connection failed");
     Migrator::up(&conn, None).await.unwrap();
 
+    let (_stream, stream_handle) = OutputStream::try_default().unwrap();
+
     tauri::Builder::default()
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_dialog::init())
@@ -37,7 +40,7 @@ pub async fn run() {
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_decorum::init())
         .setup(|app| {
-            let state = Mutex::new(state::AppData::new(conn));
+            let state = Mutex::new(state::AppData::new(conn, stream_handle));
             app.manage(state);
 
             let main_window = app.get_webview_window("main").unwrap();
