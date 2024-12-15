@@ -1,4 +1,4 @@
-import { Component, effect } from '@angular/core';
+import {Component, computed, effect} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { injectDispatch, injectSelector } from "@reduxjs/angular-redux";
@@ -6,10 +6,15 @@ import {Event, listen} from '@tauri-apps/api/event';
 import {setPosition, musicSync, Duration} from './store/tauri';
 import { AppDispatch, RootState } from './store';
 import { UnderTitlebar } from './components/under-titlebar.component';
+import {injectQuery} from "@tanstack/angular-query-experimental";
+import {invoke} from "@tauri-apps/api/core";
+import {SongMetadata} from "./types/song-metadata";
+import {Metadata} from "./injectables/metadata";
 
 @Component({
   selector: 'app-root',
   imports: [CommonModule, RouterOutlet, UnderTitlebar],
+  providers: [Metadata],
   template: `
     <app-under-titlebar/>
     <router-outlet></router-outlet>
@@ -40,7 +45,7 @@ export class App {
   // Allows us to get the position of the music player. Probably not the best way to do this.
   _getPos = effect((onCleanup) => {
     if (this.tauri().paused) return;
-    if (this.tauri().currentlyPlaying === null) return;
+    if (this.tauri().currentlyPlayingPath === null) return;
 
     let unlisten = () => { };
 

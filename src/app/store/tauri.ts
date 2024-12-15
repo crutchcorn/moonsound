@@ -27,10 +27,11 @@ const initialState = {
     speed: 1,
     paused: true,
     position: null as Duration | null,
-    currentlyPlaying: null as string | null,
+    currentlyPlayingPath: null as string | null,
     duration: null as Duration | null
 }
 
+// TODO: Rename to `playbackStateSlice`
 export const tauriSlice = createSlice({
     name: "tauri",
     initialState,
@@ -44,7 +45,7 @@ export const tauriSlice = createSlice({
             state.volume = action.payload.volume;
             state.speed = action.payload.speed;
             state.paused = action.payload.paused;
-            state.currentlyPlaying = action.payload["currently_playing_file_path"];
+            state.currentlyPlayingPath = action.payload["currently_playing_file_path"];
             state.duration = action.payload["currently_playing_duration"];
         });
         // TODO: Add error handling
