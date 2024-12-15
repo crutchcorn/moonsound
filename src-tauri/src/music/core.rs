@@ -1,6 +1,9 @@
+use crate::music::types::PeriodicCallback;
 use crate::state::AppData;
 use base64::{engine::general_purpose::STANDARD as BASE64, Engine};
+use entity::song;
 use rodio::{Decoder, Source};
+use sea_orm::{ActiveModelTrait, Set};
 use serde::Serialize;
 use std::fs::File;
 use std::io::BufReader;
@@ -10,7 +13,6 @@ use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
-use crate::music::types::PeriodicCallback;
 
 #[derive(Serialize)]
 pub struct PlayerState {
@@ -27,14 +29,24 @@ pub struct MetadataResult {
     visuals: serde_json::Map<String, serde_json::Value>,
 }
 
-pub fn read_mp3_metadata(path: &str) -> Result<MetadataResult, String> {
+pub async fn import_file(app_data: &AppData, path: &str) -> Result<(), String> {
+    song::ActiveModel {
+        path: Set(path.parse().unwrap()),
+        ..Default::default()
+    }
+    .save(&app_data.db)
+    .await
+    .map(|_| ())
+    .map_err(|e| e.to_string())
+}
+
+pub fn read_metadata(path: &str) -> Result<MetadataResult, String> {
     let path = Path::new(path);
 
     let src = File::open(path).map_err(|e| e.to_string())?;
     let mss = MediaSourceStream::new(Box::new(src), Default::default());
 
     let mut hint = Hint::new();
-    hint.with_extension("mp3");
 
     let meta_opts: MetadataOptions = Default::default();
     let fmt_opts: FormatOptions = Default::default();
@@ -47,32 +59,38 @@ pub fn read_mp3_metadata(path: &str) -> Result<MetadataResult, String> {
         .metadata
         .get()
         .and_then(|mut metadata| metadata.skip_to_latest().cloned())
-        .map(|meta_revision| meta_revision.clone())
-        .unwrap();
+        .map(|meta_revision| meta_revision.clone());
 
-    let tags = revision.tags();
-    let visuals = revision.visuals();
+    let tags = revision
+        .as_ref()
+        .map(|revision| revision.tags());
+    
+    let visuals = revision
+        .as_ref()
+        .map(|revision| revision.visuals());
 
     let mut tag_map = serde_json::Map::new();
     let mut visual_map = serde_json::Map::new();
 
-    // Process tags
-    for tag in tags {
-        let key = tag
-            .std_key
-            .map(|k| format!("{:?}", k))
-            .unwrap_or_else(|| tag.key.to_string());
-        tag_map.insert(key, serde_json::Value::String(tag.value.to_string()));
-    }
+    match (tags, visuals) {
+        (Some(tags), Some(visuals)) => {
+            // Process tags
+            for tag in tags {
+                let key = tag
+                    .std_key
+                    .map(|k| format!("{:?}", k))
+                    .unwrap_or_else(|| tag.key.to_string());
+                tag_map.insert(key, serde_json::Value::String(tag.value.to_string()));
+            }
 
-    // Process visuals
-    for (index, visual) in visuals.iter().enumerate() {
-        let base64_data = BASE64.encode(&visual.data);
-        let data_url = format!("url(data:{};base64,{})", visual.media_type, base64_data);
+            // Process visuals
+            for (index, visual) in visuals.iter().enumerate() {
+                let base64_data = BASE64.encode(&visual.data);
+                let data_url = format!("url(data:{};base64,{})", visual.media_type, base64_data);
 
-        visual_map.insert(
-            format!("visual_{}", index),
-            serde_json::json!({
+                visual_map.insert(
+                    format!("visual_{}", index),
+                    serde_json::json!({
                 "media_type": visual.media_type.to_string(),
                 "dimensions": format!("{}x{}", visual.dimensions.map_or(0, |d| d.width), visual.dimensions.map_or(0, |d| d.height)),
                 "data": data_url,
@@ -84,16 +102,26 @@ pub fn read_mp3_metadata(path: &str) -> Result<MetadataResult, String> {
                     (key, serde_json::Value::String(tag.value.to_string()))
                 }).collect::<serde_json::Map<String, serde_json::Value>>()
             })
-        );
-    }
+                );
+            }
 
-    Ok(MetadataResult {
-        tags: tag_map,
-        visuals: visual_map,
-    })
+            Ok(MetadataResult {
+                tags: tag_map,
+                visuals: visual_map,
+            })
+        }
+        _ => Ok(MetadataResult {
+            tags: tag_map,
+            visuals: visual_map,
+        }),
+    }
 }
 
-pub fn play_audio(app_data: &AppData, path: &str, on_periodic: PeriodicCallback) -> Result<Duration, String> {
+pub fn play_audio(
+    app_data: &AppData,
+    path: &str,
+    on_periodic: PeriodicCallback,
+) -> Result<Duration, String> {
     let path = Path::new(path);
     let file = BufReader::new(File::open(path).map_err(|e| e.to_string())?);
     let source = Decoder::new(file).map_err(|e| e.to_string())?;

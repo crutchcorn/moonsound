@@ -8,8 +8,13 @@ use std::io::BufReader;
 use super::core;
 
 #[tauri::command]
-pub fn read_mp3_metadata(path: &str) -> Result<core::MetadataResult, String> {
-    core::read_mp3_metadata(path)
+pub fn read_metadata(path: &str) -> Result<core::MetadataResult, String> {
+    core::read_metadata(path)
+}
+
+#[tauri::command]
+pub async fn import_file(path: &str, state: State<'_, AppData>) -> Result<(), String> {
+    core::import_file(&state, path).await
 }
 
 #[tauri::command]

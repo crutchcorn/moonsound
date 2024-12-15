@@ -66,7 +66,7 @@ export class Home {
       const result = await open({
         multiple: false,
         directory: false,
-        filters: [{ name: 'MP3', extensions: ['mp3'] }]
+        filters: [{ name: 'MP3', extensions: ['mp3'] }, { name: 'FLAC', extensions: ['flac'] }]
       });
       return result;
     }
@@ -86,7 +86,7 @@ export class Home {
       const path = this.openFileMutataion.data();
       if (!path) return null;
       // TODO: Move invoke to a service
-      return invoke<SongMetadata>("read_mp3_metadata", { path });
+      return invoke<SongMetadata>("read_metadata", { path });
     }
   }));
 

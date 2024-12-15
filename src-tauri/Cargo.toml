@@ -15,26 +15,26 @@ name = "moonsound_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
-tauri-build = { version = "2", features = [] }
+tauri-build = { version = "2.0.3", features = [] }
 
 [dependencies]
 
 migration = { path = "./migration" }
 entity = { path = "./entity" }
 
-tauri = { version = "2", features = [] }
-tauri-plugin-opener = "2"
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-symphonia = { version = "0.5.3", features = ["mp3"] }
-tauri-plugin-dialog = "2"
+tauri = { version = "2.1.1", features = [] }
+tauri-plugin-opener = "2.2.1"
+serde = { version = "1.0.216", features = ["derive"] }
+serde_json = "1.0.133"
+symphonia = { version = "0.5.4", features = ["all"] }
+tauri-plugin-dialog = "2.2.0"
 rodio = {version = "0.20.1", features = ["symphonia-all"] }
 window-vibrancy = "0.5.2"
 tauri-plugin-window-state = "2.2.0"
 tauri-plugin-decorum = "1.1.1"
-tauri-plugin-os = "2"
+tauri-plugin-os = "2.2.0"
 base64 = "0.22.1"
-sea-orm = { version = "1.1.0", features = [ "sqlx-sqlite", "runtime-async-std-rustls", "macros" ] }
+sea-orm = { version = "1.1.2", features = [ "sqlx-sqlite", "runtime-async-std-rustls", "macros" ] }
 dirs = "5.0.1"
 tokio = { version = "1.42.0", features = ["full"] }
 

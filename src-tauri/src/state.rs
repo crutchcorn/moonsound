@@ -15,21 +15,21 @@ pub struct AppData {
     pub metadata: Mutex<AppMetadata>,
     pub stream_handle: OutputStreamHandle,
     pub sink: Sink,
-    pub conn: DatabaseConnection,
+    pub db: DatabaseConnection,
 }
 
 pub struct AppDataNew {
-    pub conn: DatabaseConnection,
+    pub db: DatabaseConnection,
     pub stream_handle: OutputStreamHandle,
 }
 
 impl AppData {
     pub fn new(args: AppDataNew) -> Self {
-        let AppDataNew { conn, stream_handle } = args;
+        let AppDataNew { db, stream_handle } = args;
         let sink: Sink = Sink::try_new(&stream_handle).unwrap();
 
         Self {
-            conn,
+            db,
             metadata: Mutex::new(AppMetadata {
                 currently_playing_duration: None,
                 currently_playing_file_path: None,

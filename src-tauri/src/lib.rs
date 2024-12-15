@@ -26,10 +26,10 @@ pub async fn run() {
         app_data_dir.join("music.db").to_string_lossy()
     );
 
-    let conn = Database::connect(db_url)
+    let db = Database::connect(db_url)
         .await
         .expect("Database connection failed");
-    Migrator::up(&conn, None).await.unwrap();
+    Migrator::up(&db, None).await.unwrap();
 
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
 
@@ -40,7 +40,7 @@ pub async fn run() {
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_decorum::init())
         .setup(|app| {
-            let state = state::AppData::new(AppDataNew { conn, stream_handle });
+            let state = state::AppData::new(AppDataNew { db, stream_handle });
             app.manage(state);
 
             let main_window = app.get_webview_window("main").unwrap();
@@ -68,7 +68,7 @@ pub async fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            music::read_mp3_metadata,
+            music::read_metadata,
             music::play,
             music::stop,
             music::get_redux_store_state,
