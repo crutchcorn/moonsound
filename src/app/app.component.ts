@@ -1,4 +1,4 @@
-import {Component, effect, untracked} from '@angular/core';
+import {Component, effect} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { injectDispatch, injectSelector } from "@reduxjs/angular-redux";
@@ -21,9 +21,7 @@ export class App {
   dispatch = injectDispatch<AppDispatch>();
 
   _musicSync = effect((onCleanup) => {
-    // TODO: Without this, the effect is running over and over and over again despite not changing. IDK why.
-    // TODO: Debug this in Angular Redux
-    untracked(() => this.dispatch(musicSync()));
+    this.dispatch(musicSync());
 
     // Listen for the server to tell us to sync the music player, like when the song changes or song is paused
     let unlisten = () => { };
