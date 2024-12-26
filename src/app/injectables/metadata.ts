@@ -4,6 +4,7 @@ import {RootState} from "../store";
 import {injectQuery} from "@tanstack/angular-query-experimental";
 import {invoke} from "@tauri-apps/api/core";
 import {SongMetadata} from "../types/song-metadata";
+import {Vibrant} from "node-vibrant/browser";
 
 const defaultCover = "url('/assets/default_album_art.svg')";
 
@@ -12,21 +13,39 @@ const defaultCover = "url('/assets/default_album_art.svg')";
 export class Metadata {
   path = injectSelector((state: RootState) => state.tauri.currentlyPlayingPath);
 
-  mp3Metadata = injectQuery(() => ({
-    queryKey: ['mp3Metadata', this.path()],
+  metadata = injectQuery(() => ({
+    queryKey: ['metadata', this.path()],
     queryFn: async () => {
       const path = this.path();
       if (!path) return null;
-      return await invoke<SongMetadata>("read_metadata", { path });
+      return await invoke<SongMetadata>("read_metadata", {path});
     }
   }));
 
-  mp3CoverImage = computed(() => {
-    const metadata = this.mp3Metadata.data();
+  coverImage = computed(() => {
+    const metadata = this.metadata.data();
     if (!metadata) return defaultCover;
     const cover = metadata.visuals[Object.keys(metadata.visuals)[0] as keyof typeof metadata.visuals | never]?.data;
     if (!cover) return defaultCover;
     // url(base64)
     return cover;
   });
+
+  urlCoverImage = computed(() => {
+    const cover = this.coverImage();
+    if (!cover) return null;
+    return `url(${cover})`;
+  })
+
+  coverImagePalette = injectQuery(() => ({
+    queryKey: ['metadata', this.path(), this.coverImage()],
+    queryFn: async () => {
+      const cover = this.coverImage();
+        if (!cover) return null;
+      const el = document.createElement('img');
+      el.src = cover;
+      const res = await Vibrant.from(el).getPalette();
+      return res;
+    }
+  }))
 }

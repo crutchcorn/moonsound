@@ -13,7 +13,7 @@ function zeroPad(num: number, places: number) {
 @Component({
   selector: "currently-playing-material",
   template: `
-      <div class="coverImgBg" style="background-image: {{stateMetadata.mp3CoverImage()}}"></div>
+      <div class="coverImgBg" style="background-image: {{stateMetadata.urlCoverImage()}}"></div>
       <div class="scrim"></div>
       <ng-content></ng-content>
   `,
@@ -121,13 +121,13 @@ export class AlbumArt {
                   <button (click)="openFileMutation.mutate()">Play</button>
               }
 
-              @if (openFileMutation.data() && stateMetadata.mp3Metadata.isSuccess() && openFileMutation.isSuccess()) {
-                  <album-art [src]="stateMetadata.mp3CoverImage()"></album-art>
+              @if (openFileMutation.data() && stateMetadata.metadata.isSuccess() && openFileMutation.isSuccess()) {
+                  <album-art [src]="stateMetadata.urlCoverImage()"></album-art>
                   <div class="infoContainer">
                       <div class="textContainer">
-                          <h1 class="title">{{ stateMetadata.mp3Metadata.data()?.tags?.TrackTitle ?? "Unknown Title" }}</h1>
-                          <p class="artist">{{ stateMetadata.mp3Metadata.data()?.tags?.AlbumArtist ?? "Unknown Artist" }}</p>
-                          <p class="album">{{ stateMetadata.mp3Metadata.data()?.tags?.Album ?? "Unknown Album" }}</p>
+                          <h1 class="title">{{ stateMetadata.metadata.data()?.tags?.TrackTitle ?? "Unknown Title" }}</h1>
+                          <p class="artist">{{ stateMetadata.metadata.data()?.tags?.AlbumArtist ?? "Unknown Artist" }}</p>
+                          <p class="album">{{ stateMetadata.metadata.data()?.tags?.Album ?? "Unknown Album" }}</p>
                       </div>
 
                       <div class="progressContainer">

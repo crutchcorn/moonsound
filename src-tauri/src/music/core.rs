@@ -89,7 +89,7 @@ pub fn read_metadata(path: &str) -> Result<MetadataResult, String> {
             for (index, visual) in visuals.iter().enumerate() {
                 let base64_data = BASE64.encode(&visual.data);
                 let media_type = visual.media_type.clone().unwrap_or("image/png".to_string());
-                let data_url = format!("url(data:{};base64,{})", media_type, base64_data);
+                let data_url = format!("data:{};base64,{}", media_type, base64_data);
 
                 visual_map.insert(
                     format!("visual_{}", index),
