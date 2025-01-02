@@ -25,7 +25,10 @@ pub fn play(app: AppHandle, path: &str, state: State<'_, AppData>) -> Result<(),
     let app_handle = app.clone();
     let callback = Box::new(move |_source: &mut Decoder<BufReader<File>>| {
         app_handle
-            .emit("PLAYBACK_POSITION_UPDATE", app_handle.state::<AppData>().sink.get_pos())
+            .emit(
+                "PLAYBACK_POSITION_UPDATE",
+                app_handle.state::<AppData>().sink.get_pos(),
+            )
             .unwrap();
     });
 

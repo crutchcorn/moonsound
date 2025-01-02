@@ -3,11 +3,12 @@
 
 mod music;
 mod state;
+mod macos_interop;
 
 use migration::{Migrator, MigratorTrait};
+use rodio::OutputStream;
 use sea_orm::Database;
 use state::AppDataNew;
-use rodio::OutputStream;
 use tauri::{Manager, Theme};
 use tauri_plugin_decorum::WebviewWindowExt;
 use window_vibrancy::{apply_mica, apply_vibrancy, NSVisualEffectMaterial};

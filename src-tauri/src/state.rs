@@ -1,10 +1,6 @@
-use std::fs::File;
-use std::io::BufReader;
-use rodio::{Decoder, OutputStreamHandle, Sink};
+use rodio::{OutputStreamHandle, Sink};
 use sea_orm::DatabaseConnection;
 use std::sync::Mutex;
-use rodio::source::PeriodicAccess;
-use crate::music::types::PeriodicCallback;
 
 pub struct AppMetadata {
     pub currently_playing_file_path: Option<String>,
@@ -35,7 +31,7 @@ impl AppData {
                 currently_playing_file_path: None,
             }),
             sink,
-            stream_handle
+            stream_handle,
         }
     }
 }

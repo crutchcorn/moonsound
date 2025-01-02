@@ -1,3 +1,4 @@
+use crate::music::tags::get_keys_for_standard_tag;
 use crate::music::types::PeriodicCallback;
 use crate::state::AppData;
 use base64::{engine::general_purpose::STANDARD as BASE64, Engine};
@@ -13,7 +14,6 @@ use symphonia::core::formats::probe::Hint;
 use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::{MetadataOptions, StandardTag};
-use crate::music::tags::get_keys_for_standard_tag;
 
 #[derive(Serialize)]
 pub struct PlayerState {
@@ -35,10 +35,10 @@ pub async fn import_file(app_data: &AppData, path: &str) -> Result<(), String> {
         path: Set(path.parse().unwrap()),
         ..Default::default()
     }
-        .save(&app_data.db)
-        .await
-        .map(|_| ())
-        .map_err(|e| e.to_string())
+    .save(&app_data.db)
+    .await
+    .map(|_| ())
+    .map_err(|e| e.to_string())
 }
 
 pub fn read_metadata(path: &str) -> Result<MetadataResult, String> {

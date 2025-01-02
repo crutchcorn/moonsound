@@ -1,6 +1,6 @@
 mod commands;
 mod core;
-pub(crate) mod types;
 mod tags;
+pub(crate) mod types;
 
 pub use commands::*;
