@@ -17,7 +17,7 @@
     "windows": [
       {
         "fullscreen": false,
-        "resizable": false,
+        "resizable": true,
         "title": "tauri-app",
         "width": 640,
         "height": 292,

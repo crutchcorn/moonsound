@@ -5,10 +5,9 @@ import {pause, play, resume, seek} from "../services/music";
 import {pickSong} from "../services/fs";
 import {Metadata} from "../injectables/metadata";
 import {injectMutation} from "@tanstack/angular-query-experimental";
-
-function zeroPad(num: number, places: number) {
-  return String(num).padStart(places, '0');
-}
+import {PlayPauseBtn, PlayPause} from "../components/controls/play-pause";
+import {zeroPad} from "../utils/strings";
+import {ControlType} from "../types/currently-playing";
 
 @Component({
   selector: "currently-playing-material",
@@ -111,9 +110,8 @@ export class AlbumArt {
 }
 
 @Component({
-  // TODO: Rename from "home" to "now-playing"
-  selector: 'app-home',
-  imports: [CurrentlyPlayingMaterial, AlbumArt],
+  selector: 'app-now-playing',
+  imports: [CurrentlyPlayingMaterial, AlbumArt, PlayPause],
   template: `
       <currently-playing-material>
           <div class="container">
@@ -140,17 +138,7 @@ export class AlbumArt {
                       </div>
 
                       <div>
-                          <div class="playPauseBtnContainer">
-                              @if (playingMetadata().paused) {
-                                  <button class="playPauseBtn" (click)="resume()">
-                                  </button>
-                                  <img class="playPauseIcon" src="/assets/play_icon.svg" alt="Play"/>
-                              } @else {
-                                  <button class="playPauseBtn" (click)="pause()">
-                                  </button>
-                                  <img class="playPauseIcon" src="/assets/pause_icon.svg" alt="Pause"/>
-                              }
-                          </div>
+                          <app-play-pause (pause)="pause()" (resume)="resume()" [isPaused]="playingMetadata().paused"/>
                       </div>
                   </div>
               }
@@ -227,14 +215,14 @@ export class AlbumArt {
           display: flex;
           justify-content: space-between;
       }
-      
+
       .progressText {
           font-size: 14px;
           color: white;
           opacity: 0.5;
           margin: 0;
       }
-      
+
       .progressBar {
           border-radius: 1.5rem;
           width: 100%;
@@ -259,41 +247,13 @@ export class AlbumArt {
           padding: 0;
           margin: 0;
       }
-
-      .playPauseBtnContainer {
-          position: relative;
-          width: fit-content;
-          margin: -12px 0;
-      }
-
-      .playPauseBtn {
-          height: 72px;
-          width: 72px;
-          border-radius: 2.125rem;
-          border: 1px solid var(--Angled-Stroke, rgba(255, 255, 255, 0.20));
-          aspect-ratio: 1;
-          background: #FFF;
-          mix-blend-mode: overlay;
-
-          /* Blur + Shadow Big */
-          box-shadow: 0px 7px 10px 0px rgba(0, 0, 0, 0.05), 0px 40px 80px 0px rgba(0, 0, 0, 0.08);
-          backdrop-filter: blur(50px);
-      }
-
-      .playPauseIcon {
-          pointer-events: none;
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          width: 32px;
-          height: 32px;
-      }
   `]
 })
 export class CurrentlyPlaying {
   playingMetadata = injectSelector((state: RootState) => state.tauri);
   stateMetadata = inject(Metadata);
+
+  controls: ControlType = "play-pause";
 
   openFileMutation = injectMutation(() => ({
     mutationKey: ['openFile'],
