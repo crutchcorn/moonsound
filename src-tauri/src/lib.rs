@@ -1,9 +1,9 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod macos_interop;
 mod music;
 mod state;
-mod macos_interop;
 
 use migration::{Migrator, MigratorTrait};
 use rodio::OutputStream;
@@ -40,14 +40,12 @@ pub async fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_decorum::init())
+        // .plugin(macos_interop::now_playing::init())
         .setup(|app| {
             let state = state::AppData::new(AppDataNew { db, stream_handle });
-            app.manage(state);
+            app.manage(state.clone());
 
-            if cfg!(target_os = "macos") {
-                #[cfg(target_os = "macos")]
-                macos_interop::now_playing::setup_handlers(state);
-            }
+            macos_interop::now_playing::setup_handlers(state.clone());
 
             let main_window = app.get_webview_window("main").unwrap();
             main_window.create_overlay_titlebar().unwrap();
