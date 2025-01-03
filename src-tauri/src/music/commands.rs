@@ -27,7 +27,7 @@ pub fn play(app: AppHandle, path: &str, state: State<'_, AppData>) -> Result<(),
         app_handle
             .emit(
                 "PLAYBACK_POSITION_UPDATE",
-                app_handle.state::<AppData>().sink.lock().unwrap().get_pos(),
+                app_handle.state::<AppData>().sink.get_pos(),
             )
             .unwrap();
     });
