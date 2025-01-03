@@ -159,6 +159,10 @@ pub fn pause(app_data: &AppData) {
     app_data.sink.pause();
 }
 
+pub fn is_playing(app_data: &AppData) -> bool {
+    !app_data.sink.is_paused()
+}
+
 pub fn resume(app_data: &AppData) {
     app_data.sink.play();
 }

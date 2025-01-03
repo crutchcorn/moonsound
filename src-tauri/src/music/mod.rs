@@ -1,5 +1,5 @@
 mod commands;
-mod core;
+pub(crate) mod core;
 mod tags;
 pub(crate) mod types;
 

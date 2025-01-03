@@ -1,5 +1,5 @@
 use objc2::rc::Retained;
-use objc2::runtime::{AnyObject, Bool};
+use objc2::runtime::AnyObject;
 use objc2_foundation::{NSNumber, NSString};
 use objc2_media_player::{
     MPMediaItemPropertyAlbumArtist, MPMediaItemPropertyAlbumTitle, MPMediaItemPropertyArtist,
@@ -7,6 +7,43 @@ use objc2_media_player::{
     MPNowPlayingInfoPropertyAssetURL, MPNowPlayingInfoPropertyIsLiveStream,
     MPNowPlayingInfoPropertyMediaType, MPNowPlayingPlaybackState,
 };
+use tauri::State;
+
+pub fn setup_handlers(mut state: State<'static, crate::state::AppData>) {
+    unsafe {
+        let shared = objc2_media_player::MPRemoteCommandCenter::sharedCommandCenter();
+        let state_clone = state.clone();
+        let play_handler = block2::StackBlock::new(
+            move |_: core::ptr::NonNull<objc2_media_player::MPRemoteCommandEvent>| {
+                crate::music::core::resume(&state_clone);
+                objc2_media_player::MPRemoteCommandHandlerStatus::Success
+            },
+        );
+        let state_clone = state.clone();
+        let pause_handler = block2::StackBlock::new(
+            move |_: core::ptr::NonNull<objc2_media_player::MPRemoteCommandEvent>| {
+                crate::music::core::pause(&state_clone);
+                objc2_media_player::MPRemoteCommandHandlerStatus::Success
+            },
+        );
+        let state_clone = state.clone();
+        let toggle_play_pause_handler = block2::StackBlock::new(
+            move |_: core::ptr::NonNull<objc2_media_player::MPRemoteCommandEvent>| {
+                if crate::music::core::is_playing(&state_clone) {
+                    crate::music::core::pause(&state_clone);
+                } else {
+                    crate::music::core::resume(&state_clone);
+                }
+                objc2_media_player::MPRemoteCommandHandlerStatus::Success
+            },
+        );
+        shared.playCommand().addTargetWithHandler(&play_handler);
+        shared.pauseCommand().addTargetWithHandler(&pause_handler);
+        shared
+            .togglePlayPauseCommand()
+            .addTargetWithHandler(&toggle_play_pause_handler);
+    }
+}
 
 pub fn set_now_playing() {
     unsafe {
@@ -14,8 +51,8 @@ pub fn set_now_playing() {
 
         let keys = &[
             // MPNowPlayingInfoPropertyAssetURL,
-            // MPNowPlayingInfoPropertyMediaType,
-            // MPNowPlayingInfoPropertyIsLiveStream,
+            MPNowPlayingInfoPropertyMediaType,
+            MPNowPlayingInfoPropertyIsLiveStream,
             MPMediaItemPropertyTitle,
             MPMediaItemPropertyArtist,
             // MPMediaItemPropertyArtwork,
@@ -26,12 +63,12 @@ pub fn set_now_playing() {
             // Retained::into_super(Retained::into_super(NSString::from_str(
             //     "https://example.com",
             // ))),
-            // Retained::into_super(Retained::into_super(Retained::into_super(
-            //     NSNumber::numberWithInt(1),
-            // ))),
-            // Retained::into_super(Retained::into_super(Retained::into_super(
-            //     NSNumber::numberWithBool(false),
-            // ))),
+            Retained::into_super(Retained::into_super(Retained::into_super(
+                NSNumber::numberWithInt(1),
+            ))),
+            Retained::into_super(Retained::into_super(Retained::into_super(
+                NSNumber::numberWithBool(false),
+            ))),
             Retained::into_super(Retained::into_super(NSString::from_str("Title"))),
             Retained::into_super(Retained::into_super(NSString::from_str("Artist"))),
             // Retained::into_super(Retained::into_super(NSString::from_str("Artwork"))),
@@ -39,15 +76,7 @@ pub fn set_now_playing() {
             Retained::into_super(Retained::into_super(NSString::from_str("Album Title"))),
         ];
         let dictionary = objc2_foundation::NSDictionary::from_id_slice(keys, owned_objects);
-        println!("{:?}", dictionary.get(MPMediaItemPropertyArtist));
-        println!("{}", dictionary.len());
         MPNowPlayingInfoCenter::setNowPlayingInfo(&*default, Some(dictionary.as_ref()));
         MPNowPlayingInfoCenter::setPlaybackState(&*default, MPNowPlayingPlaybackState::Playing);
-        let shared = objc2_media_player::MPRemoteCommandCenter::sharedCommandCenter();
-        let play_handler = block2::StackBlock::new(|_: core::ptr::NonNull<objc2_media_player::MPRemoteCommandEvent>| {
-            objc2_media_player::MPRemoteCommandHandlerStatus::Success
-        });
-        let play_handler = play_handler.copy();
-        shared.playCommand().addTargetWithHandler(&play_handler);
     }
 }
