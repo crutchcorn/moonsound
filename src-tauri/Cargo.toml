@@ -37,12 +37,12 @@ base64 = "0.22.1"
 sea-orm = { version = "1.1.2", features = [ "sqlx-sqlite", "runtime-async-std-rustls", "macros" ] }
 dirs = "5.0.1"
 tokio = { version = "1.42.0", features = ["full"] }
+
+[target."cfg(target_os = \"macos\")".dependencies]
+cocoa = "0.26"
 objc2-media-player = { version = "0.2.2", features = ["all"] }
 block2 = "0.5.1"
 objc2 = "0.5.2"
 objc2-foundation = "0.2.2"
-
-[target."cfg(target_os = \"macos\")".dependencies]
-cocoa = "0.26"
 
 [workspace]

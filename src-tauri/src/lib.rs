@@ -45,7 +45,10 @@ pub async fn run() {
             let state = state::AppData::new(AppDataNew { db, stream_handle });
             app.manage(state.clone());
 
-            macos_interop::now_playing::setup_handlers(state.clone());
+            if cfg!(target_os = "macos") {
+                #[cfg(target_os = "macos")]
+                macos_interop::now_playing::setup_handlers(state.clone());
+            }
 
             let main_window = app.get_webview_window("main").unwrap();
             main_window.create_overlay_titlebar().unwrap();

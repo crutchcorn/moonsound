@@ -1,6 +1,10 @@
+#[cfg(target_os = "macos")]
 use objc2::rc::Retained;
+#[cfg(target_os = "macos")]
 use objc2::runtime::AnyObject;
+#[cfg(target_os = "macos")]
 use objc2_foundation::{NSNumber, NSString};
+#[cfg(target_os = "macos")]
 use objc2_media_player::{
     MPMediaItemPropertyAlbumArtist, MPMediaItemPropertyAlbumTitle, MPMediaItemPropertyArtist,
     MPMediaItemPropertyArtwork, MPMediaItemPropertyTitle, MPNowPlayingInfoCenter,
@@ -8,6 +12,7 @@ use objc2_media_player::{
     MPNowPlayingInfoPropertyMediaType, MPNowPlayingPlaybackState,
 };
 
+#[cfg(target_os = "macos")]
 pub fn setup_handlers(state: crate::state::AppData) {
     unsafe {
         let state_clone = state.clone();
@@ -44,6 +49,7 @@ pub fn setup_handlers(state: crate::state::AppData) {
     }
 }
 
+#[cfg(target_os = "macos")]
 pub fn set_now_playing() {
     unsafe {
         let default = MPNowPlayingInfoCenter::defaultCenter();
