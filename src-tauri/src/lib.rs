@@ -9,9 +9,8 @@ use migration::{Migrator, MigratorTrait};
 use rodio::OutputStream;
 use sea_orm::Database;
 use state::AppDataNew;
-use tauri::{Manager, State, Theme};
+use tauri::Manager;
 use tauri_plugin_decorum::WebviewWindowExt;
-use window_vibrancy::{apply_mica, apply_vibrancy, NSVisualEffectMaterial};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub async fn run() {
@@ -47,7 +46,8 @@ pub async fn run() {
             if cfg!(target_os = "macos") {
                 #[cfg(target_os = "macos")]
                 unsafe {
-                    let static_state: State<'static, state::AppData> = std::mem::transmute(app.state::<state::AppData>());
+                    let static_state: State<'static, state::AppData> =
+                        std::mem::transmute(app.state::<state::AppData>());
                     macos_interop::now_playing::setup_handlers(&app.app_handle(), static_state);
                 }
             }
