@@ -12,31 +12,39 @@ use objc2_media_player::{
     MPNowPlayingInfoPropertyMediaType, MPNowPlayingPlaybackState,
 };
 
+use tauri::plugin::{Builder, TauriPlugin};
+use tauri::{AppHandle, Manager, Runtime, State};
+
 #[cfg(target_os = "macos")]
-pub fn setup_handlers(state: crate::state::AppData) {
+pub fn setup_handlers(app: &AppHandle, state: State<'static, crate::state::AppData>) {
     unsafe {
-        let state_clone = state.clone();
         let shared = objc2_media_player::MPRemoteCommandCenter::sharedCommandCenter();
+        let state_clone = state.clone();
+        let app_clone = app.clone();
         let play_handler = block2::StackBlock::new(
             move |_: core::ptr::NonNull<objc2_media_player::MPRemoteCommandEvent>| {
-                crate::music::core::resume(&state_clone);
+                crate::music::commands::resume_inner(app_clone.clone(), state_clone.clone());
                 objc2_media_player::MPRemoteCommandHandlerStatus::Success
             },
         );
         let state_clone = state.clone();
-        let pause_handler = block2::RcBlock::new(
+        let app_clone = app.clone();
+        let pause_handler = block2::StackBlock::new(
             move |_: core::ptr::NonNull<objc2_media_player::MPRemoteCommandEvent>| {
-                crate::music::core::pause(&state_clone);
+                crate::music::commands::pause_inner(app_clone.clone(), state_clone.clone());
                 objc2_media_player::MPRemoteCommandHandlerStatus::Success
             },
         );
         let state_clone = state.clone();
-        let toggle_play_pause_handler = block2::RcBlock::new(
+        let app_clone = app.clone();
+        let toggle_play_pause_handler = block2::StackBlock::new(
             move |_: core::ptr::NonNull<objc2_media_player::MPRemoteCommandEvent>| {
-                if crate::music::core::is_playing(&state_clone) {
-                    crate::music::core::pause(&state_clone);
+                let app_clone_clone = app_clone.clone();
+                let state_clone_clone = state_clone.clone();
+                if crate::music::core::is_playing(&state_clone_clone) {
+                    crate::music::commands::pause(app_clone_clone, state_clone_clone);
                 } else {
-                    crate::music::core::resume(&state_clone);
+                    crate::music::commands::resume(app_clone_clone, state_clone_clone);
                 }
                 objc2_media_player::MPRemoteCommandHandlerStatus::Success
             },

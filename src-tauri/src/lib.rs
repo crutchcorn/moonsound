@@ -9,7 +9,7 @@ use migration::{Migrator, MigratorTrait};
 use rodio::OutputStream;
 use sea_orm::Database;
 use state::AppDataNew;
-use tauri::{Manager, Theme};
+use tauri::{Manager, State, Theme};
 use tauri_plugin_decorum::WebviewWindowExt;
 use window_vibrancy::{apply_mica, apply_vibrancy, NSVisualEffectMaterial};
 
@@ -40,14 +40,16 @@ pub async fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_decorum::init())
-        // .plugin(macos_interop::now_playing::init())
         .setup(|app| {
             let state = state::AppData::new(AppDataNew { db, stream_handle });
             app.manage(state.clone());
 
             if cfg!(target_os = "macos") {
                 #[cfg(target_os = "macos")]
-                macos_interop::now_playing::setup_handlers(state.clone());
+                unsafe {
+                    let static_state: State<'static, state::AppData> = std::mem::transmute(app.state::<state::AppData>());
+                    macos_interop::now_playing::setup_handlers(&app.app_handle(), static_state);
+                }
             }
 
             let main_window = app.get_webview_window("main").unwrap();

@@ -71,16 +71,24 @@ pub fn seek_to(
     Ok(())
 }
 
-#[tauri::command]
-pub fn pause(app: AppHandle, state: State<'_, AppData>) {
+pub fn pause_inner(app: AppHandle, state: State<'_, AppData>) {
     core::pause(&state);
     app.emit("SERVER_SYNC_EVENT", "").unwrap();
 }
 
 #[tauri::command]
-pub fn resume(app: AppHandle, state: State<'_, AppData>) {
+pub fn pause(app: AppHandle, state: State<'_, AppData>) {
+    pause_inner(app, state);
+}
+
+pub fn resume_inner(app: AppHandle, state: State<'_, AppData>) {
     core::resume(&state);
     app.emit("SERVER_SYNC_EVENT", "").unwrap();
+}
+
+#[tauri::command]
+pub fn resume(app: AppHandle, state: State<'_, AppData>) {
+    resume_inner(app, state);
 }
 
 #[tauri::command]
