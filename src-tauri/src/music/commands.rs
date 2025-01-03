@@ -9,7 +9,14 @@ use super::core;
 
 #[tauri::command]
 pub fn read_metadata(path: &str) -> Result<core::MetadataResult, String> {
-    core::read_metadata(path)
+    let metadata = core::read_metadata(path);
+    match metadata {
+        Ok(metadata) => {
+            crate::macos_interop::now_playing::set_now_playing(metadata.clone());
+            Ok(metadata.clone())
+        },
+        Err(e) => Err(e),
+    }
 }
 
 #[tauri::command]
@@ -34,7 +41,6 @@ pub fn play(app: AppHandle, path: &str, state: State<'_, AppData>) -> Result<(),
 
     let duration = core::play_audio(&state, path, callback)?;
     metadata.currently_playing_duration = Some(duration);
-    crate::macos_interop::now_playing::set_now_playing();
     app.emit("SERVER_SYNC_EVENT", "").unwrap();
     Ok(())
 }

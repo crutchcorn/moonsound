@@ -24,10 +24,10 @@ pub struct PlayerState {
     pub currently_playing_duration: Option<std::time::Duration>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 pub struct MetadataResult {
-    tags: serde_json::Map<String, serde_json::Value>,
-    visuals: serde_json::Map<String, serde_json::Value>,
+    pub tags: serde_json::Map<String, serde_json::Value>,
+    pub visuals: serde_json::Map<String, serde_json::Value>,
 }
 
 pub async fn import_file(app_data: &AppData, path: &str) -> Result<(), String> {

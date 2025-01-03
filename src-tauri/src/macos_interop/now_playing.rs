@@ -58,7 +58,7 @@ pub fn setup_handlers(app: &AppHandle, state: State<'static, crate::state::AppDa
 }
 
 #[cfg(target_os = "macos")]
-pub fn set_now_playing() {
+pub fn set_now_playing(metadata: crate::music::core::MetadataResult) {
     unsafe {
         let default = MPNowPlayingInfoCenter::defaultCenter();
 
@@ -82,11 +82,39 @@ pub fn set_now_playing() {
             Retained::into_super(Retained::into_super(Retained::into_super(
                 NSNumber::numberWithBool(false),
             ))),
-            Retained::into_super(Retained::into_super(NSString::from_str("Title"))),
-            Retained::into_super(Retained::into_super(NSString::from_str("Artist"))),
+            Retained::into_super(Retained::into_super(NSString::from_str(
+                &metadata
+                    .tags
+                    .get("TrackTitle")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("Unknown Title")
+                    .to_string(),
+            ))),
+            Retained::into_super(Retained::into_super(NSString::from_str(
+                &metadata
+                    .tags
+                    .get("Artist")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("Unknown Artist")
+                    .to_string(),
+            ))),
             // Retained::into_super(Retained::into_super(NSString::from_str("Artwork"))),
-            Retained::into_super(Retained::into_super(NSString::from_str("Album Artist"))),
-            Retained::into_super(Retained::into_super(NSString::from_str("Album Title"))),
+            Retained::into_super(Retained::into_super(NSString::from_str(
+                &metadata
+                    .tags
+                    .get("AlbumArtist")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("Unknown Artist")
+                    .to_string(),
+            ))),
+            Retained::into_super(Retained::into_super(NSString::from_str(
+                &metadata
+                    .tags
+                    .get("Album")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("Unknown Album")
+                    .to_string(),
+            ))),
         ];
         let dictionary = objc2_foundation::NSDictionary::from_id_slice(keys, owned_objects);
         MPNowPlayingInfoCenter::setNowPlayingInfo(&*default, Some(dictionary.as_ref()));
