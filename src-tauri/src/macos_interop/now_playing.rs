@@ -1,14 +1,12 @@
-use objc2::runtime::AnyObject;
-use objc2_media_player::{MPNowPlayingInfoCenter,
-                         MPNowPlayingInfoPropertyAssetURL,
-                         MPNowPlayingInfoPropertyMediaType,
-                         MPNowPlayingInfoPropertyIsLiveStream,
-                         MPMediaItemPropertyTitle,
-                         MPMediaItemPropertyArtist,
-                         MPMediaItemPropertyArtwork,
-                         MPMediaItemPropertyAlbumArtist,
-                         MPMediaItemPropertyAlbumTitle};
-use objc2_foundation::{ns_string, NSMutableDictionary, NSMutableString, NSString};
+use objc2::rc::Retained;
+use objc2::runtime::{AnyObject, Bool};
+use objc2_foundation::{NSNumber, NSString};
+use objc2_media_player::{
+    MPMediaItemPropertyAlbumArtist, MPMediaItemPropertyAlbumTitle, MPMediaItemPropertyArtist,
+    MPMediaItemPropertyArtwork, MPMediaItemPropertyTitle, MPNowPlayingInfoCenter,
+    MPNowPlayingInfoPropertyAssetURL, MPNowPlayingInfoPropertyIsLiveStream,
+    MPNowPlayingInfoPropertyMediaType, MPNowPlayingPlaybackState,
+};
 
 pub fn set_now_playing() {
     unsafe {
@@ -20,21 +18,28 @@ pub fn set_now_playing() {
                 MPNowPlayingInfoPropertyIsLiveStream,
                 MPMediaItemPropertyTitle,
                 MPMediaItemPropertyArtist,
-                MPMediaItemPropertyArtwork,
+                // MPMediaItemPropertyArtwork,
                 MPMediaItemPropertyAlbumArtist,
-                MPMediaItemPropertyAlbumTitle
+                MPMediaItemPropertyAlbumTitle,
             ];
-            let owned_objects = &[
-                NSString::from_str("https://example.com"),
-                NSString::from_str("1"),
-                NSString::from_str("false"),
-                NSString::from_str("Title"),
-                NSString::from_str("Artist"),
-                NSString::from_str("Artwork"),
-                NSString::from_str("Album Artist"),
-                NSString::from_str("Album Title")
+            let owned_objects: &[Retained<AnyObject>] = &[
+                Retained::into_super(Retained::into_super(NSString::from_str(
+                    "https://example.com",
+                ))),
+                Retained::into_super(Retained::into_super(Retained::into_super(
+                    NSNumber::numberWithInt(1),
+                ))),
+                Retained::into_super(Retained::into_super(Retained::into_super(
+                    NSNumber::numberWithBool(false),
+                ))),
+                Retained::into_super(Retained::into_super(NSString::from_str("Title"))),
+                Retained::into_super(Retained::into_super(NSString::from_str("Artist"))),
+                // Retained::into_super(Retained::into_super(NSString::from_str("Artwork"))),
+                Retained::into_super(Retained::into_super(NSString::from_str("Album Artist"))),
+                Retained::into_super(Retained::into_super(NSString::from_str("Album Title"))),
             ];
             Some(objc2_foundation::NSDictionary::from_id_slice(keys, owned_objects).as_ref())
         });
+        MPNowPlayingInfoCenter::setPlaybackState(&*default, MPNowPlayingPlaybackState::Playing)
     }
 }
