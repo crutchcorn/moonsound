@@ -7,32 +7,31 @@ use objc2_media_player::{
     MPNowPlayingInfoPropertyAssetURL, MPNowPlayingInfoPropertyIsLiveStream,
     MPNowPlayingInfoPropertyMediaType, MPNowPlayingPlaybackState,
 };
-use tauri::State;
 
-pub fn setup_handlers(mut state: State<'static, crate::state::AppData>) {
+pub fn setup_handlers(state: crate::state::AppData) {
     unsafe {
         let shared = objc2_media_player::MPRemoteCommandCenter::sharedCommandCenter();
-        let state_clone = state.clone();
+        let state_clone1 = state.clone();
         let play_handler = block2::StackBlock::new(
             move |_: core::ptr::NonNull<objc2_media_player::MPRemoteCommandEvent>| {
-                crate::music::core::resume(&state_clone);
+                crate::music::core::resume(&state_clone1);
                 objc2_media_player::MPRemoteCommandHandlerStatus::Success
             },
         );
-        let state_clone = state.clone();
+        let state_clone2 = state.clone();
         let pause_handler = block2::StackBlock::new(
             move |_: core::ptr::NonNull<objc2_media_player::MPRemoteCommandEvent>| {
-                crate::music::core::pause(&state_clone);
+                crate::music::core::pause(&state_clone2);
                 objc2_media_player::MPRemoteCommandHandlerStatus::Success
             },
         );
-        let state_clone = state.clone();
+        let state_clone3 = state.clone();
         let toggle_play_pause_handler = block2::StackBlock::new(
             move |_: core::ptr::NonNull<objc2_media_player::MPRemoteCommandEvent>| {
-                if crate::music::core::is_playing(&state_clone) {
-                    crate::music::core::pause(&state_clone);
+                if crate::music::core::is_playing(&state_clone3) {
+                    crate::music::core::pause(&state_clone3);
                 } else {
-                    crate::music::core::resume(&state_clone);
+                    crate::music::core::resume(&state_clone3);
                 }
                 objc2_media_player::MPRemoteCommandHandlerStatus::Success
             },

@@ -35,7 +35,7 @@ pub async fn import_file(app_data: &AppData, path: &str) -> Result<(), String> {
         path: Set(path.parse().unwrap()),
         ..Default::default()
     }
-    .save(&app_data.db)
+    .save(app_data.db.as_ref())
     .await
     .map(|_| ())
     .map_err(|e| e.to_string())
@@ -133,51 +133,51 @@ pub fn play_audio(
     // Periodic access is closed when the sink is stopped (Is this correct?)
     let periodic_access = source.periodic_access(Duration::from_secs(1), on_periodic);
 
-    app_data.sink.clear();
-    app_data.sink.append(periodic_access);
+    app_data.sink.lock().unwrap().clear();
+    app_data.sink.lock().unwrap().append(periodic_access);
 
     Ok(duration)
 }
 
 pub fn stop(app_data: &AppData) {
-    app_data.sink.stop();
+    app_data.sink.lock().unwrap().stop();
 }
 
 pub fn set_volume(app_data: &AppData, volume: f32) {
-    app_data.sink.set_volume(volume);
+    app_data.sink.lock().unwrap().set_volume(volume);
 }
 
 pub fn set_speed(app_data: &AppData, speed: f32) {
-    app_data.sink.set_speed(speed);
+    app_data.sink.lock().unwrap().set_speed(speed);
 }
 
 pub fn seek_to(app_data: &AppData, position: std::time::Duration) -> Result<(), String> {
-    app_data.sink.try_seek(position).map_err(|e| e.to_string())
+    app_data.sink.lock().unwrap().try_seek(position).map_err(|e| e.to_string())
 }
 
 pub fn pause(app_data: &AppData) {
-    app_data.sink.pause();
+    app_data.sink.lock().unwrap().pause();
 }
 
 pub fn is_playing(app_data: &AppData) -> bool {
-    !app_data.sink.is_paused()
+    !app_data.sink.lock().unwrap().is_paused()
 }
 
 pub fn resume(app_data: &AppData) {
-    app_data.sink.play();
+    app_data.sink.lock().unwrap().play();
 }
 
 pub fn get_player_state(app_data: &AppData) -> PlayerState {
     let metadata = app_data.metadata.lock().unwrap();
     PlayerState {
-        volume: app_data.sink.volume(),
-        speed: app_data.sink.speed(),
-        paused: app_data.sink.is_paused(),
+        volume: app_data.sink.lock().unwrap().volume(),
+        speed: app_data.sink.lock().unwrap().speed(),
+        paused: app_data.sink.lock().unwrap().is_paused(),
         currently_playing_file_path: metadata.currently_playing_file_path.clone(),
         currently_playing_duration: metadata.currently_playing_duration.clone(),
     }
 }
 
 pub fn get_position(app_data: &AppData) -> std::time::Duration {
-    app_data.sink.get_pos()
+    app_data.sink.lock().unwrap().get_pos()
 }
