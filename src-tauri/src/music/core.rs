@@ -13,7 +13,7 @@ use std::time::Duration;
 use symphonia::core::formats::probe::Hint;
 use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
-use symphonia::core::meta::{MetadataOptions, StandardTag};
+use symphonia::core::meta::MetadataOptions;
 
 #[derive(Serialize)]
 pub struct PlayerState {

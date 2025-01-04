@@ -12,9 +12,6 @@ use objc2_media_player::{
     MPNowPlayingInfoPropertyMediaType, MPNowPlayingPlaybackState,
 };
 
-use tauri::plugin::{Builder, TauriPlugin};
-use tauri::{AppHandle, Manager, Runtime, State};
-
 #[cfg(target_os = "macos")]
 pub fn setup_handlers(app: &AppHandle, state: State<'static, crate::state::AppData>) {
     unsafe {
