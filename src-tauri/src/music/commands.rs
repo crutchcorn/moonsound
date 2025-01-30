@@ -12,6 +12,7 @@ pub fn read_metadata(path: &str) -> Result<core::MetadataResult, String> {
     let metadata = core::read_metadata(path);
     match metadata {
         Ok(metadata) => {
+            #[cfg(target_os = "macos")]
             crate::macos_interop::now_playing::set_now_playing(metadata.clone());
             Ok(metadata.clone())
         },
