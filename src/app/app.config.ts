@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideExperimentalZonelessChangeDetection } from "@angular/core";
+import { ApplicationConfig, provideZonelessChangeDetection } from "@angular/core";
 import { provideRouter } from "@angular/router";
 
 import { routes } from "./app.routes";
@@ -11,7 +11,7 @@ export const queryClient = new QueryClient();
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-    provideExperimentalZonelessChangeDetection(),
+    provideZonelessChangeDetection(),
     provideQueryClient(queryClient),
     provideRedux({ store })
   ],

@@ -1,5 +1,5 @@
 import {Component, effect} from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterOutlet } from '@angular/router';
 import { injectDispatch, injectSelector } from "@reduxjs/angular-redux";
 import {Event, listen} from '@tauri-apps/api/event';
@@ -10,7 +10,7 @@ import {Metadata} from "./injectables/metadata";
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, RouterOutlet, UnderTitlebar],
+  imports: [RouterOutlet, UnderTitlebar],
   providers: [Metadata],
   template: `
     <app-under-titlebar/>
