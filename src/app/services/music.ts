@@ -7,7 +7,7 @@ export function play(fsPath: string) {
 }
 
 // TODO: Implement this function
-export function importSong(fsPath: string) {}
+export function importSong(_fsPath: string) {}
 
 export function stop() {
   return invoke<void>("stop");

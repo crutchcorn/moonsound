@@ -5,7 +5,7 @@ import { pause, play, resume, seek } from "../services/music";
 import { pickSong } from "../services/fs";
 import { Metadata } from "../injectables/metadata";
 import { injectMutation } from "@tanstack/angular-query-experimental";
-import { PlayPauseBtn, PlayPause } from "../components/controls/play-pause";
+import { PlayPause } from "../components/controls/play-pause";
 import { zeroPad } from "../utils/strings";
 import { ControlType } from "../types/currently-playing";
 
@@ -168,6 +168,8 @@ export class AlbumArt {
                 <p class="progressText">{{ currentTimeFormatted() }}</p>
                 <p class="progressText">{{ totalTimeFormatted() }}</p>
               </div>
+              <!-- TODO: Add left and right keybinds -->
+              <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
               <progress
                 class="progressBar"
                 (click)="seekFromProgressBar($event)"
@@ -178,8 +180,8 @@ export class AlbumArt {
 
             <div>
               <app-play-pause
-                (pause)="pause()"
-                (resume)="resume()"
+                (pauseit)="pause()"
+                (resumeit)="resume()"
                 [isPaused]="playingMetadata().paused"
               />
             </div>

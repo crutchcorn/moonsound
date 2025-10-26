@@ -26,7 +26,7 @@ export class App {
     // Listen for the server to tell us to sync the music player, like when the song changes or song is paused
     let unlisten = () => {};
 
-    listen("SERVER_SYNC_EVENT", (event) => {
+    listen("SERVER_SYNC_EVENT", (_event) => {
       this.dispatch(musicSync());
     }).then((listener) => {
       unlisten = listener;

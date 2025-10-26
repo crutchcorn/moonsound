@@ -8,7 +8,8 @@
     "watch": "ng build --watch --configuration development",
     "tauri": "tauri",
     "tauri:dev": "pnpm tauri dev",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "lint": "ng lint"
   },
   "private": true,
   "dependencies": {
@@ -34,11 +35,16 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
+    "@angular-eslint/builder": "20.4.0",
     "@angular/build": "^20.3.7",
     "@angular/cli": "^20.3.7",
     "@angular/compiler-cli": "^20.3.7",
+    "@eslint/js": "^9.37.0",
     "@tauri-apps/cli": "^2.9.1",
+    "angular-eslint": "20.4.0",
+    "eslint": "^9.37.0",
     "prettier": "^3.6.2",
-    "typescript": "~5.9.3"
+    "typescript": "~5.9.3",
+    "typescript-eslint": "8.46.0"
   }
 }

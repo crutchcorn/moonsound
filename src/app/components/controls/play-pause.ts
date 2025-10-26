@@ -14,10 +14,14 @@ import { Metadata } from "../../injectables/metadata";
         "
     >
       @if (isPaused()) {
-        <button class="playPauseBtn" (click)="resume.emit()"></button>
+        <button class="playPauseBtn" (click)="resumeit.emit()">
+          <span class="visually-hidden">Resume</span>
+        </button>
         <img class="playPauseIcon" src="/assets/play_icon.svg" alt="Play" />
       } @else {
-        <button class="playPauseBtn" (click)="pause.emit()"></button>
+        <button class="playPauseBtn" (click)="pauseit.emit()">
+          <span class="visually-hidden">Pause</span>
+        </button>
         <img class="playPauseIcon" src="/assets/pause_icon.svg" alt="Pause" />
       }
     </div>
@@ -68,8 +72,8 @@ import { Metadata } from "../../injectables/metadata";
 })
 export class PlayPauseBtn {
   metadata = inject(Metadata);
-  resume = output();
-  pause = output();
+  resumeit = output();
+  pauseit = output();
   isPaused = input.required<boolean>();
 }
 
@@ -88,8 +92,8 @@ export class PlayPauseBtn {
       </button>
       <app-play-pause-btn
         [isPaused]="isPaused()"
-        (resume)="resume.emit()"
-        (pause)="pause.emit()"
+        (resumeit)="resumeit.emit()"
+        (pauseit)="pauseit.emit()"
       />
     </div>
   `,
@@ -115,7 +119,7 @@ export class PlayPauseBtn {
 })
 export class PlayPause {
   metadata = inject(Metadata);
-  resume = output();
-  pause = output();
+  resumeit = output();
+  pauseit = output();
   isPaused = input.required<boolean>();
 }
