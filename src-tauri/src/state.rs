@@ -1,4 +1,5 @@
-use rodio::{OutputStreamHandle, Sink};
+use rodio::mixer::Mixer;
+use rodio::Sink;
 use sea_orm::DatabaseConnection;
 use std::sync::{Arc, Mutex};
 
@@ -10,20 +11,19 @@ pub struct AppMetadata {
 #[derive(Clone)]
 pub struct AppData {
     pub metadata: Arc<Mutex<AppMetadata>>,
-    pub stream_handle: OutputStreamHandle,
     pub sink: Arc<Sink>,
     pub db: DatabaseConnection,
 }
 
 pub struct AppDataNew {
     pub db: DatabaseConnection,
-    pub stream_handle: OutputStreamHandle,
+    pub mixer: &'static Mixer,
 }
 
 impl AppData {
     pub fn new(args: AppDataNew) -> Self {
-        let AppDataNew { db, stream_handle } = args;
-        let sink: Sink = Sink::try_new(&stream_handle).unwrap();
+        let AppDataNew { db, mixer } = args;
+        let sink: Sink = Sink::connect_new(mixer);
 
         Self {
             db,
@@ -32,7 +32,6 @@ impl AppData {
                 currently_playing_file_path: None,
             })),
             sink: Arc::new(sink),
-            stream_handle,
         }
     }
 }

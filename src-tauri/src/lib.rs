@@ -6,7 +6,7 @@ mod music;
 mod state;
 
 use migration::{Migrator, MigratorTrait};
-use rodio::OutputStream;
+use rodio::OutputStreamBuilder;
 use sea_orm::Database;
 use state::AppDataNew;
 use tauri::{Manager, State, Theme};
@@ -32,7 +32,12 @@ pub async fn run() {
         .expect("Database connection failed");
     Migrator::up(&db, None).await.unwrap();
 
-    let (_stream, stream_handle) = OutputStream::try_default().unwrap();
+    // Create the output stream and leak it to keep it alive for the program lifetime
+    // This is necessary because OutputStream on macOS is not Send
+    let stream = OutputStreamBuilder::open_default_stream().unwrap();
+    let mixer: &'static _ = Box::leak(Box::new(stream.mixer().clone()));
+    // Leak the stream to keep it alive - it will be cleaned up on program exit
+    Box::leak(Box::new(stream));
 
     tauri::Builder::default()
         .plugin(tauri_plugin_os::init())
@@ -40,8 +45,8 @@ pub async fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_decorum::init())
-        .setup(|app| {
-            let state = state::AppData::new(AppDataNew { db, stream_handle });
+        .setup(move |app| {
+            let state = state::AppData::new(AppDataNew { db, mixer });
             app.manage(state.clone());
 
             if cfg!(target_os = "macos") {
