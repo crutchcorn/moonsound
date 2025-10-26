@@ -1,8 +1,8 @@
 import { Component, effect, input } from "@angular/core";
-import { platform } from '@tauri-apps/plugin-os';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { listen, TauriEvent } from "@tauri-apps/api/event"
+import {getPlatform} from "../utils/platform";
 
 @Component({
     selector: "app-under-titlebar-macos",
@@ -40,7 +40,8 @@ export class UnderTitlebarMacos {
     `
 })
 export class UnderTitlebar {
-    currentPlatform = platform();
+    currentPlatform = getPlatform();
+
     theme = injectQuery(() => ({
         queryKey: ['theme'],
         queryFn: async () => await getCurrentWindow().theme() ?? "dark"
