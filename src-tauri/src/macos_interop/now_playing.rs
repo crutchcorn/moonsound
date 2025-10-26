@@ -116,7 +116,7 @@ pub fn set_now_playing(metadata: crate::music::core::MetadataResult) {
                     .to_string(),
             ))),
         ];
-        let dictionary = objc2_foundation::NSDictionary::from_id_slice(keys, owned_objects);
+        let dictionary = objc2_foundation::NSDictionary::from_retained_objects(keys, owned_objects);
         MPNowPlayingInfoCenter::setNowPlayingInfo(&*default, Some(dictionary.as_ref()));
         MPNowPlayingInfoCenter::setPlaybackState(&*default, MPNowPlayingPlaybackState::Playing);
     }
