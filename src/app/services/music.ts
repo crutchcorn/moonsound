@@ -1,14 +1,13 @@
-import {invoke} from "@tauri-apps/api/core";
+import { invoke } from "@tauri-apps/api/core";
 
 export function play(fsPath: string) {
   return invoke<void>("play", {
-    path: fsPath
+    path: fsPath,
   });
 }
 
 // TODO: Implement this function
-export function importSong(fsPath: string) {
-}
+export function importSong(fsPath: string) {}
 
 export function stop() {
   return invoke<void>("stop");
@@ -26,7 +25,7 @@ export function seek(seconds: number) {
   return invoke("seek_to", {
     position: {
       secs: Math.floor(seconds),
-      nanos: 0
-    }
+      nanos: 0,
+    },
   });
 }

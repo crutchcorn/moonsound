@@ -1,19 +1,19 @@
-import {Component, effect} from '@angular/core';
+import { Component, effect } from "@angular/core";
 
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet } from "@angular/router";
 import { injectDispatch, injectSelector } from "@reduxjs/angular-redux";
-import {Event, listen} from '@tauri-apps/api/event';
-import {setPosition, musicSync, Duration} from './store/tauri';
-import { AppDispatch, RootState } from './store';
-import { UnderTitlebar } from './components/under-titlebar.component';
-import {Metadata} from "./injectables/metadata";
+import { Event, listen } from "@tauri-apps/api/event";
+import { setPosition, musicSync, Duration } from "./store/tauri";
+import { AppDispatch, RootState } from "./store";
+import { UnderTitlebar } from "./components/under-titlebar.component";
+import { Metadata } from "./injectables/metadata";
 
 @Component({
-  selector: 'app-root',
+  selector: "app-root",
   imports: [RouterOutlet, UnderTitlebar],
   providers: [Metadata],
   template: `
-    <app-under-titlebar/>
+    <app-under-titlebar />
     <router-outlet></router-outlet>
   `,
 })
@@ -24,10 +24,10 @@ export class App {
     this.dispatch(musicSync());
 
     // Listen for the server to tell us to sync the music player, like when the song changes or song is paused
-    let unlisten = () => { };
+    let unlisten = () => {};
 
-    listen('SERVER_SYNC_EVENT', (event) => {
-      this.dispatch(musicSync())
+    listen("SERVER_SYNC_EVENT", (event) => {
+      this.dispatch(musicSync());
     }).then((listener) => {
       unlisten = listener;
     });
@@ -35,7 +35,7 @@ export class App {
     onCleanup(() => {
       unlisten();
     });
-  })
+  });
 
   tauri = injectSelector((state: RootState) => state.tauri);
 
@@ -44,16 +44,16 @@ export class App {
     if (this.tauri().paused) return;
     if (this.tauri().currentlyPlayingPath === null) return;
 
-    let unlisten = () => { };
+    let unlisten = () => {};
 
-    listen('PLAYBACK_POSITION_UPDATE', (event: Event<Duration>) => {
+    listen("PLAYBACK_POSITION_UPDATE", (event: Event<Duration>) => {
       this.dispatch(setPosition(event.payload));
     }).then((listener) => {
       unlisten = listener;
     });
 
     onCleanup(() => {
-        unlisten();
+      unlisten();
     });
-  })
+  });
 }
