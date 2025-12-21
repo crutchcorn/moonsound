@@ -1,6 +1,5 @@
 export interface SongTagsMetadata {
   Album: string;
-  AlbumArtist: string;
   Artist: string;
   Comment: string;
   Date: string;

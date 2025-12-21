@@ -152,7 +152,7 @@ export class AlbumArt {
               </h1>
               <p class="artist">
                 {{
-                  stateMetadata.metadata.data()?.tags?.AlbumArtist ??
+                  stateMetadata.metadata.data()?.tags?.Artist ??
                     "Unknown Artist"
                 }}
               </p>
