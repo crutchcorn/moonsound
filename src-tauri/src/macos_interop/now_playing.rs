@@ -14,9 +14,12 @@ use objc2_media_player::{
 
 use tauri::plugin::{Builder, TauriPlugin};
 use tauri::{AppHandle, Manager, Runtime, State};
+use crate::state;
 
 #[cfg(target_os = "macos")]
-pub fn setup_handlers(app: &AppHandle, state: State<'static, crate::state::AppData>) {
+pub fn setup_handlers(app: &'static AppHandle) {
+    let state = app.state::<state::AppData>();
+
     let shared = unsafe { objc2_media_player::MPRemoteCommandCenter::sharedCommandCenter() };
     let state_clone = state.clone();
     let app_clone = app.clone();

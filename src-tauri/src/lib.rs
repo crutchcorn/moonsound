@@ -51,10 +51,9 @@ pub async fn run() {
 
             if cfg!(target_os = "macos") {
                 #[cfg(target_os = "macos")]
-                unsafe {
-                    let static_state: State<'static, state::AppData> = std::mem::transmute(app.state::<state::AppData>());
-                    macos_interop::now_playing::setup_handlers(&app.app_handle(), static_state);
-                }
+                macos_interop::now_playing::setup_handlers(
+                    Box::leak(Box::new(app.app_handle().clone()))
+                );
             }
 
             let main_window = app.get_webview_window("main").unwrap();
