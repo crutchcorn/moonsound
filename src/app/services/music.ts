@@ -29,3 +29,9 @@ export function seek(seconds: number) {
     },
   });
 }
+
+export function setVolume(volume: number) {
+  return invoke<void>("set_volume", {
+    volume: Math.max(0, Math.min(1, volume)),
+  });
+}

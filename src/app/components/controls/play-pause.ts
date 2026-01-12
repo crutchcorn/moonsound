@@ -87,8 +87,8 @@ export class PlayPauseBtn {
         metadata.coverImagePalette.data()?.DarkVibrant?.hex
       }}"
     >
-      <button class="invisibleButton">
-        <img height="24" width="24" src="/assets/volume_icon.svg" alt="" />
+      <button class="invisibleButton" (click)="volumeClick.emit()">
+        <img height="24" width="24" src="/assets/volume_icon.svg" alt="Volume" />
       </button>
       <app-play-pause-btn
         [isPaused]="isPaused()"
@@ -121,5 +121,6 @@ export class PlayPause {
   metadata = inject(Metadata);
   resumeit = output();
   pauseit = output();
+  volumeClick = output();
   isPaused = input.required<boolean>();
 }

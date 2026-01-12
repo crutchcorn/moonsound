@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from "@angular/core";
+import { Component, computed, inject, input, signal } from "@angular/core";
 import { injectSelector } from "@reduxjs/angular-redux";
 import { RootState } from "../store";
 import { pause, play, resume, seek } from "../services/music";
@@ -6,6 +6,7 @@ import { pickSong } from "../services/fs";
 import { Metadata } from "../injectables/metadata";
 import { injectMutation } from "@tanstack/angular-query-experimental";
 import { PlayPause } from "../components/controls/play-pause";
+import { VolumeSlider } from "../components/controls/volume-slider";
 import { zeroPad } from "../utils/strings";
 import { ControlType } from "../types/currently-playing";
 
@@ -128,7 +129,7 @@ export class AlbumArt {
 
 @Component({
   selector: "app-now-playing",
-  imports: [CurrentlyPlayingMaterial, AlbumArt, PlayPause],
+  imports: [CurrentlyPlayingMaterial, AlbumArt, PlayPause, VolumeSlider],
   template: `
     <currently-playing-material>
       <div class="container">
@@ -179,11 +180,19 @@ export class AlbumArt {
             </div>
 
             <div>
-              <app-play-pause
-                (pauseit)="pause()"
-                (resumeit)="resume()"
-                [isPaused]="playingMetadata().paused"
-              />
+              @if (controls() === 'volume-change') {
+                <app-volume-slider
+                  [volume]="playingMetadata().volume"
+                  (backClick)="controls.set('play-pause')"
+                />
+              } @else {
+                <app-play-pause
+                  (pauseit)="pause()"
+                  (resumeit)="resume()"
+                  (volumeClick)="controls.set('volume-change')"
+                  [isPaused]="playingMetadata().paused"
+                />
+              }
             </div>
           </div>
         }
@@ -304,7 +313,7 @@ export class CurrentlyPlaying {
   playingMetadata = injectSelector((state: RootState) => state.tauri);
   stateMetadata = inject(Metadata);
 
-  controls: ControlType = "play-pause";
+  controls = signal<ControlType>("play-pause");
 
   openFileMutation = injectMutation(() => ({
     mutationKey: ["openFile"],
