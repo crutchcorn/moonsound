@@ -64,9 +64,9 @@ pub fn read_metadata(path: &str) -> Result<MetadataResult, String> {
     let mut metadata = probed.metadata();
     let revision = metadata.skip_to_latest();
 
-    let tags = revision.as_ref().map(|revision| revision.tags());
+    let tags = revision.map(|revision| &revision.media.tags);
 
-    let visuals = revision.as_ref().map(|revision| revision.visuals());
+    let visuals = revision.map(|revision| &revision.media.visuals);
 
     let mut tag_map = serde_json::Map::new();
     let mut visual_map = serde_json::Map::new();
@@ -76,11 +76,11 @@ pub fn read_metadata(path: &str) -> Result<MetadataResult, String> {
             // Process tags
             for tag in tags {
                 let key = tag
-                    .clone()
                     .std
+                    .as_ref()
                     .map(|std_tag| get_keys_for_standard_tag(std_tag))
-                    .unwrap_or_else(|| tag.clone().raw.key.to_string());
-                let value = tag.clone().raw.value.to_string();
+                    .unwrap_or_else(|| tag.raw.key.to_string());
+                let value = tag.raw.value.to_string();
 
                 tag_map.insert(key, serde_json::Value::String(value));
             }
@@ -99,8 +99,8 @@ pub fn read_metadata(path: &str) -> Result<MetadataResult, String> {
                         "data": data_url,
                         "tags": visual.tags.iter().map(|tag| {
                             let key =
-                                tag.clone().std.map(|std_tag| get_keys_for_standard_tag(std_tag)).unwrap_or_else(|| tag.clone().raw.key.to_string());
-                            let value = tag.clone().raw.value.to_string();
+                                tag.std.as_ref().map(|std_tag| get_keys_for_standard_tag(std_tag)).unwrap_or_else(|| tag.raw.key.to_string());
+                            let value = tag.raw.value.to_string();
 
                             (key, serde_json::Value::String(value))
                         }).collect::<serde_json::Map<String, serde_json::Value>>()
