@@ -170,13 +170,16 @@ export class AlbumArt {
                 <p class="progressText">{{ totalTimeFormatted() }}</p>
               </div>
               <!-- TODO: Add left and right keybinds -->
-              <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events,@angular-eslint/template/interactive-supports-focus -->
-              <progress
+              <input
+                type="range"
                 class="progressBar"
-                (click)="seekFromProgressBar($event)"
-                value="{{ currentSecs() }}"
-                max="{{ totalSecs() }}"
-              ></progress>
+                [value]="currentSecs() ?? 0"
+                [max]="totalSecs() ?? 0"
+                min="0"
+                step="1"
+                [style.--progress]="progressPercent() + '%'"
+                (input)="seekFromInput($event)"
+              />
             </div>
 
             <div>
@@ -289,22 +292,26 @@ export class AlbumArt {
         background-blend-mode: plus-darker;
         height: 0.5rem;
         appearance: none;
-      }
-
-      .progressBar::-webkit-progress-bar {
-        height: 100%;
         background: rgba(0, 0, 0, 0.12);
-        padding: 0;
-        margin: 0;
+        cursor: pointer;
       }
 
-      .progressBar::-webkit-progress-value {
-        border-radius: 1.25rem;
-        background: rgba(255, 255, 255, 0.8);
-        mix-blend-mode: plus-lighter;
-        height: 100%;
-        padding: 0;
-        margin: 0;
+      .progressBar::-webkit-slider-thumb {
+        appearance: none;
+        width: 0;
+        height: 0;
+      }
+
+      .progressBar::-webkit-slider-runnable-track {
+        height: 0.5rem;
+        border-radius: 1.5rem;
+        background: linear-gradient(
+          to right,
+          rgba(255, 255, 255, 0.8) 0%,
+          rgba(255, 255, 255, 0.8) var(--progress, 0%),
+          transparent var(--progress, 0%),
+          transparent 100%
+        );
       }
     `,
   ],
@@ -333,6 +340,13 @@ export class CurrentlyPlaying {
 
   currentSecs = computed(() => {
     return this.playingMetadata().position?.secs;
+  });
+
+  progressPercent = computed(() => {
+    const current = this.currentSecs() ?? 0;
+    const total = this.totalSecs() ?? 0;
+    if (total === 0) return 0;
+    return (current / total) * 100;
   });
 
   totalTime = computed(() => {
@@ -380,11 +394,9 @@ export class CurrentlyPlaying {
   resume = resume;
   pause = pause;
 
-  seekFromProgressBar(event: MouseEvent) {
-    const progressBar = event.target as HTMLProgressElement;
-    const value =
-      (event.offsetX / progressBar.offsetWidth) *
-      parseInt(progressBar.getAttribute("max") || "0");
+  seekFromInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const value = parseFloat(input.value);
     seek(value);
   }
 }

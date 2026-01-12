@@ -74,6 +74,8 @@ pub fn seek_to(
     state: State<'_, AppData>,
 ) -> Result<(), String> {
     core::seek_to(&state, position)?;
+    // Emit the new position immediately so the UI updates without waiting for the next periodic update
+    app.emit("PLAYBACK_POSITION_UPDATE", state.sink.get_pos()).unwrap();
     app.emit("SERVER_SYNC_EVENT", "").unwrap();
     Ok(())
 }
