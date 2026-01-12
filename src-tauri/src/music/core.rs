@@ -126,8 +126,9 @@ pub fn play_audio(
     on_periodic: PeriodicCallback,
 ) -> Result<Duration, String> {
     let path = Path::new(path);
-    let file = BufReader::new(File::open(path).map_err(|e| e.to_string())?);
-    let source = Decoder::new(file).map_err(|e| e.to_string())?;
+    let file = File::open(path).map_err(|e| e.to_string())?;
+    // Pass File directly to try_from - it will wrap in BufReader internally with file length set for seeking
+    let source = Decoder::try_from(file).map_err(|e| e.to_string())?;
     let duration = source.total_duration().unwrap_or_default();
 
     // Periodic access is closed when the sink is stopped (Is this correct?)
