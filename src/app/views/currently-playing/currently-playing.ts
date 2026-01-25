@@ -29,7 +29,7 @@ export class CurrentlyPlaying {
     mutationFn: async () => {
       const path = await pickSong();
       if (!path) {
-        return;
+        return false;
       }
       await play(path);
       return true;
@@ -93,8 +93,23 @@ export class CurrentlyPlaying {
     return `${showHours ? hours + ":" : ""}${showMinutes ? zeroPad(minutes, 2) : ""}:${zeroPad(seconds, 2)}`;
   });
 
-  resume = resume;
-  pause = pause;
+  isPlayingASong = computed(() => !!this.playingMetadata().currentlyPlayingPath);
+
+  resume = () => {
+    // Need to select a file to play
+    if (!this.isPlayingASong()) {
+      this.openFileMutation.mutate(undefined, {
+        onSuccess: () => {
+          void resume();
+        },
+      });
+      return;
+    }
+    void resume();
+  };
+  pause = () => {
+    void pause();
+  };
 
   seekFromInput(event: Event) {
     const input = event.target as HTMLInputElement;

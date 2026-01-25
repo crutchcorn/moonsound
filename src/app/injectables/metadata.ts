@@ -6,7 +6,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { SongMetadata } from "../types/song-metadata";
 import { Vibrant } from "node-vibrant/browser";
 
-const defaultCover = "url('/assets/default_album_art.svg')";
+export const defaultCover = "/assets/default_album_art.svg";
 
 // TODO: Remove this in favor of using the `@reduxjs/toolkit` package and RTK Query (not out yet for Angular)
 @Injectable({ providedIn: null })

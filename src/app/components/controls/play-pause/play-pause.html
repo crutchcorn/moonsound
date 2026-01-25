@@ -5,16 +5,22 @@
   }}"
 >
   <button class="invisibleButton" (click)="volumeClick.emit()">
-    <img
-      height="24"
-      width="24"
-      src="/assets/volume_icon.svg"
-      alt="Volume"
-    />
+    <img height="24" width="24" src="/assets/volume_icon.svg" alt="Volume" />
   </button>
   <play-pause-btn
     [isPaused]="isPaused()"
     (resumeit)="resumeit.emit()"
     (pauseit)="pauseit.emit()"
   />
+
+  @if (isPlayingASong()) {
+  <button class="invisibleButton" (click)="pickSong.emit()">
+    <img
+      height="24"
+      width="24"
+      src="/assets/library_icon.svg"
+      alt="Settings"
+    />
+  </button>
+    }
 </div>
