@@ -7,7 +7,8 @@ import { LightGlassOutlined } from "../components/light-glass-outlined";
     <div class="container">
       <light-glass-outlined>
         <div class="innerContents">
-          <p>This is a placeholder for Moonsound settings</p>
+          <h1 class="title">Settings</h1>
+          <hr class="hr" />
         </div>
       </light-glass-outlined>
     </div>
@@ -31,6 +32,26 @@ import { LightGlassOutlined } from "../components/light-glass-outlined";
 
       .innerContents {
         padding: 2rem;
+      }
+
+      .title {
+        margin: 0;
+        font-family: "Roboto Flex", sans-serif;
+        font-variation-settings:
+          "wght" 500,
+          "wdth" 151,
+          "GRAD" 150,
+          "XOPQ" 96;
+      }
+
+      .hr {
+        all: unset;
+        display: block;
+        height: 2px;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        margin-top: 20px;
+        margin-bottom: 20px;
       }
 
       p {
