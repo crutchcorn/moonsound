@@ -116,10 +116,10 @@ pub fn get_position(state: State<'_, AppData>) -> std::time::Duration {
 
 #[tauri::command]
 pub fn add_folder(app: AppHandle, path: &str) -> Result<(), String> {
-    let pear = saved_directories::ActiveModel {
+    saved_directories::ActiveModel {
         path: Set(path.to_owned()),
         ..Default::default() // all other attributes are `NotSet`
     };
-    app.emit("FOLDER_ADDED_EVENT", "").unwrap();
+    app.emit("FOLDER_ADDED_EVENT", path.to_string()).unwrap();
     Ok(())
 }
