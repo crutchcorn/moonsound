@@ -11,7 +11,7 @@ use sea_orm::Database;
 use state::AppDataNew;
 use tauri::{Manager, State, Theme};
 use tauri_plugin_decorum::WebviewWindowExt;
-use window_vibrancy::{apply_mica, apply_vibrancy, NSVisualEffectMaterial};
+use window_vibrancy::{NSVisualEffectMaterial, apply_mica, apply_vibrancy};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub async fn run() {
@@ -40,6 +40,7 @@ pub async fn run() {
     Box::leak(Box::new(stream));
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
@@ -51,9 +52,9 @@ pub async fn run() {
 
             if cfg!(target_os = "macos") {
                 #[cfg(target_os = "macos")]
-                macos_interop::now_playing::setup_handlers(
-                    Box::leak(Box::new(app.app_handle().clone()))
-                );
+                macos_interop::now_playing::setup_handlers(Box::leak(Box::new(
+                    app.app_handle().clone(),
+                )));
             }
 
             let main_window = app.get_webview_window("main").unwrap();

@@ -1,7 +1,7 @@
 use crate::music::tags::get_keys_for_standard_tag;
 use crate::music::types::PeriodicCallback;
 use crate::state::AppData;
-use base64::{engine::general_purpose::STANDARD as BASE64, Engine};
+use base64::{Engine, engine::general_purpose::STANDARD as BASE64};
 use entity::song;
 use rodio::{Decoder, Source};
 use sea_orm::{ActiveModelTrait, Set};
@@ -10,8 +10,8 @@ use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
 use std::time::Duration;
-use symphonia::core::formats::probe::Hint;
 use symphonia::core::formats::FormatOptions;
+use symphonia::core::formats::probe::Hint;
 use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::{MetadataOptions, StandardTag};
 

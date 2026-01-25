@@ -28,6 +28,7 @@
     "@tauri-apps/plugin-dialog": "~2.5.0",
     "@tauri-apps/plugin-opener": "^2.5.3",
     "@tauri-apps/plugin-os": "~2.3.2",
+    "@tauri-apps/plugin-process": "~2.3.1",
     "@tauri-apps/plugin-sql": "~2.3.1",
     "node-vibrant": "^4.0.3",
     "redux": "^5.0.1",

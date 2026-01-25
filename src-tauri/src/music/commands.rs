@@ -15,7 +15,7 @@ pub fn read_metadata(path: &str) -> Result<core::MetadataResult, String> {
             #[cfg(target_os = "macos")]
             crate::macos_interop::now_playing::set_now_playing(metadata.clone());
             Ok(metadata.clone())
-        },
+        }
         Err(e) => Err(e),
     }
 }
@@ -75,7 +75,8 @@ pub fn seek_to(
 ) -> Result<(), String> {
     core::seek_to(&state, position)?;
     // Emit the new position immediately so the UI updates without waiting for the next periodic update
-    app.emit("PLAYBACK_POSITION_UPDATE", state.sink.get_pos()).unwrap();
+    app.emit("PLAYBACK_POSITION_UPDATE", state.sink.get_pos())
+        .unwrap();
     app.emit("SERVER_SYNC_EVENT", "").unwrap();
     Ok(())
 }

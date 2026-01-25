@@ -12,9 +12,9 @@ use objc2_media_player::{
     MPNowPlayingInfoPropertyMediaType, MPNowPlayingPlaybackState,
 };
 
+use crate::state;
 use tauri::plugin::{Builder, TauriPlugin};
 use tauri::{AppHandle, Manager, Runtime, State};
-use crate::state;
 
 #[cfg(target_os = "macos")]
 pub fn setup_handlers(app: &'static AppHandle) {
@@ -62,9 +62,7 @@ pub fn setup_handlers(app: &'static AppHandle) {
 
 #[cfg(target_os = "macos")]
 pub fn set_now_playing(metadata: crate::music::core::MetadataResult) {
-    let default = unsafe {
-        MPNowPlayingInfoCenter::defaultCenter()
-    };
+    let default = unsafe { MPNowPlayingInfoCenter::defaultCenter() };
 
     let keys = unsafe {
         &[

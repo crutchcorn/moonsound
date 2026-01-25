@@ -7,6 +7,9 @@ import { setPosition, musicSync, Duration } from "./store/tauri";
 import { AppDispatch, RootState } from "./store";
 import { UnderTitlebar } from "./components/under-titlebar.component";
 import { Metadata } from "./injectables/metadata";
+import { Menu, MenuItem } from "@tauri-apps/api/menu";
+import { injectQuery } from "@tanstack/angular-query-experimental";
+import { getMenu } from "./utils/menu";
 
 @Component({
   selector: "app-root",
@@ -38,6 +41,24 @@ export class App {
   });
 
   tauri = injectSelector((state: RootState) => state.tauri);
+
+  menuQuery = injectQuery(() => ({
+    queryKey: ["menu"],
+    queryFn: async () => {
+      const menu = await getMenu();
+
+      await menu.setAsAppMenu();
+      // Success
+      return true;
+    },
+  }));
+
+  _logErrors = effect(() => {
+    const menuError = this.menuQuery.error();
+    if (menuError) {
+      console.error(menuError);
+    }
+  });
 
   // Allows us to get the position of the music player. Probably not the best way to do this.
   _getPos = effect((onCleanup) => {
