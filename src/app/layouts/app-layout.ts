@@ -1,12 +1,12 @@
 import { Component, ViewEncapsulation } from "@angular/core";
-import { UnderTitlebar } from "../components/under-titlebar.component";
 import { RouterOutlet } from "@angular/router";
+import { UnderTitlebar } from "../components/under-titlebar/under-titlebar";
 
 @Component({
   imports: [UnderTitlebar, RouterOutlet],
   selector: "app-layout",
   template: `
-    <app-under-titlebar />
+    <under-titlebar />
     <div class="__app_layout___mainContents">
       <router-outlet></router-outlet>
     </div>

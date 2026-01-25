@@ -1,0 +1,21 @@
+<div
+  class="playPauseBtnContainer"
+  style="
+      --bg-color: {{ metadata.coverImagePalette.data()?.Vibrant?.hex }};
+      --color: {{
+    metadata.coverImagePalette.data()?.Vibrant?.titleTextColor
+  }};
+    "
+>
+  @if (isPaused()) {
+    <button class="playPauseBtn" (click)="resumeit.emit()">
+      <span class="visually-hidden">Resume</span>
+    </button>
+    <img class="playPauseIcon" src="/src/assets/play_icon.svg" alt="Play" />
+  } @else {
+    <button class="playPauseBtn" (click)="pauseit.emit()">
+      <span class="visually-hidden">Pause</span>
+    </button>
+    <img class="playPauseIcon" src="/src/assets/pause_icon.svg" alt="Pause" />
+  }
+</div>

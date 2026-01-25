@@ -1,0 +1,20 @@
+<div
+  class="volumeRow"
+  [style.background-color]="metadata.coverImagePalette.data()?.DarkVibrant?.hex"
+>
+  <button class="iconButton" (click)="backClick.emit()">
+    <span class="backArrow">‹</span>
+  </button>
+  <input
+    type="range"
+    class="volumeSlider"
+    min="0"
+    max="1"
+    step="0.01"
+    [value]="volume()"
+    (input)="onVolumeChange($event)"
+  />
+  <button class="iconButton">
+    <img height="24" width="24" src="/assets/volume_icon.svg" alt="Volume" />
+  </button>
+</div>

@@ -1,0 +1,40 @@
+
+:host {
+  display: inline-flex;
+  height: 1px;
+  overflow: visible;
+  justify-content: center;
+  align-items: center;
+}
+
+.playPauseBtnContainer {
+  position: relative;
+  width: fit-content;
+  margin: -12px 0;
+}
+
+.playPauseBtn {
+  height: 72px;
+  width: 72px;
+  border-radius: 2.125rem;
+  border: 1px solid var(--Angled-Stroke, rgba(255, 255, 255, 0.2));
+  aspect-ratio: 1;
+
+  background-color: var(--bg-color);
+  color: var(--color);
+
+  /* Blur + Shadow Big */
+  box-shadow:
+          0px 7px 10px 0px rgba(0, 0, 0, 0.05),
+          0px 40px 80px 0px rgba(0, 0, 0, 0.08);
+}
+
+.playPauseIcon {
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 32px;
+  height: 32px;
+}
