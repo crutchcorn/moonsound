@@ -1,0 +1,40 @@
+<div class="container">
+  <div class="topbar">
+    <img class="logo" src="/assets/header-logo-white.svg" alt="" />
+  </div>
+  <div class="sidebarContainer">
+    <sidebar-item
+      name="Library"
+      iconPath="/assets/library_icon.svg"
+    ></sidebar-item>
+  </div>
+  <div class="contentsContainer">
+    <light-glass-outlined>
+      <div class="innerPlayBackgroundContainer">
+        <div class="innerPlayBlur"></div>
+        <div
+          class="innerPlayBackground"
+          style="background-image: {{ stateMetadata.urlCoverImage() }}"
+        ></div>
+      </div>
+      <div class="innerContents">
+        <h1 class="title">Library</h1>
+        <hr class="hr" />
+        @if (!playingMetadata().currentlyPlayingPath) {
+        <div class="noSongPlayingContainer">
+          <a class="noSongPlayingInnerContainer" routerLink="/playing">
+            <img src="/assets/play_icon.svg" alt="" />
+            <p class="no-song-playing">No song is currently playing</p>
+          </a>
+        </div>
+        } @else {
+        <div class="noSongPlayingContainer">
+          <a class="noSongPlayingInnerContainer" routerLink="/playing">
+            <album-art [src]="stateMetadata.urlCoverImage()"></album-art>
+          </a>
+        </div>
+        }
+      </div>
+    </light-glass-outlined>
+  </div>
+</div>

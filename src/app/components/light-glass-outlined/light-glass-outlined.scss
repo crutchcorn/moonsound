@@ -18,5 +18,7 @@
   height: 1px;
   /* rgba(255,255,255,0.03) on top of #060606 */
   background: #131316;
-  border-radius: calc(48px - 2px);
+  border-radius: calc(48px + 2px);
+  position: relative;
+  overflow: hidden;
 }

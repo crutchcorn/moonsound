@@ -1,0 +1,16 @@
+<light-glass-outlined>
+  <div class="container">
+    <div class="coverBgContainer">
+        <div class="hoverScrim"></div>
+      <div
+        class="coverBg"
+        style="background-image: {{ stateMetadata.urlCoverImage() }}"
+      ></div>
+      <div class="coverBgBlur"></div>
+    </div>
+    <div class="contents">
+      <img class="icon" [src]="iconPath()" alt="" />
+      <span>{{name()}}</span>
+    </div>
+  </div>
+</light-glass-outlined>
