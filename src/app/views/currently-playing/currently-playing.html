@@ -1,70 +1,61 @@
 <currently-playing-material>
   <div class="container">
-    @if (!openFileMutation.data()) {
-      <button (click)="openFileMutation.mutate()">Play</button>
-    }
-
-    @if (
-      openFileMutation.data() &&
-      stateMetadata.metadata.isSuccess() &&
-      openFileMutation.isSuccess()
-    ) {
-      <album-art [src]="stateMetadata.urlCoverImage()"></album-art>
-      <div class="infoContainer">
-        <div class="textContainer">
-          <h1 class="title">
-            {{
-              stateMetadata.metadata.data()?.tags?.TrackTitle ??
-                "Unknown Title"
-            }}
-          </h1>
-          <p class="artist">
-            {{
-              stateMetadata.metadata.data()?.tags?.Artist ??
-                "Unknown Artist"
-            }}
-          </p>
-          <p class="album">
-            {{
-              stateMetadata.metadata.data()?.tags?.Album ?? "Unknown Album"
-            }}
-          </p>
-        </div>
-
-        <div class="progressContainer">
-          <div class="progressTextContainer">
-            <p class="progressText">{{ currentTimeFormatted() }}</p>
-            <p class="progressText">{{ totalTimeFormatted() }}</p>
-          </div>
-          <!-- TODO: Add left and right keybinds -->
-          <input
-            type="range"
-            class="progressBar"
-            [value]="currentSecs() ?? 0"
-            [max]="totalSecs() ?? 0"
-            min="0"
-            step="1"
-            [style.--progress]="progressPercent() + '%'"
-            (input)="seekFromInput($event)"
-          />
-        </div>
-
-        <div>
-          @if (controls() === "volume-change") {
-            <volume-slider
-              [volume]="playingMetadata().volume"
-              (backClick)="controls.set('play-pause')"
-            />
-          } @else {
-            <play-pause
-              (pauseit)="pause()"
-              (resumeit)="resume()"
-              (volumeClick)="controls.set('volume-change')"
-              [isPaused]="playingMetadata().paused"
-            />
-          }
-        </div>
+    @if ( stateMetadata.metadata.isSuccess()) {
+    <album-art [src]="stateMetadata.urlCoverImage()"></album-art>
+    <div class="infoContainer">
+      <div class="textContainer">
+        <h1 class="title">
+          {{ stateMetadata.metadata.data()?.tags?.TrackTitle ?? "Unknown Title"
+          }}
+        </h1>
+        <p class="artist">
+          {{ stateMetadata.metadata.data()?.tags?.Artist ?? "Unknown Artist" }}
+        </p>
+        <p class="album">
+          {{ stateMetadata.metadata.data()?.tags?.Album ?? "Unknown Album" }}
+        </p>
       </div>
+
+      <div class="progressContainer">
+        <div class="progressTextContainer">
+          <p class="progressText">{{ currentTimeFormatted() }}</p>
+          <p class="progressText">{{ totalTimeFormatted() }}</p>
+        </div>
+        <!-- TODO: Add left and right keybinds -->
+        <input
+          type="range"
+          class="progressBar"
+          [value]="currentSecs() ?? 0"
+          [max]="totalSecs() ?? 0"
+          min="0"
+          step="1"
+          [style.--progress]="progressPercent() + '%'"
+          (input)="seekFromInput($event)"
+        />
+      </div>
+
+      <div>
+        @if (controls() === "volume-change") {
+        <volume-slider
+          [volume]="playingMetadata().volume"
+          (backClick)="controls.set('play-pause')"
+        />
+        } @else {
+        <play-pause
+          (pauseit)="pause()"
+          (resumeit)="resume()"
+          (volumeClick)="controls.set('volume-change')"
+          (pickSong)="openFileMutation.mutate()"
+          [isPlayingASong]="isPlayingASong()"
+          [isPaused]="!isPlayingASong() || playingMetadata().paused"
+        />
+        }
+      </div>
+    </div>
+    } @else if (stateMetadata.metadata.isLoading()) {
+    <p>Loading...</p>
+    } @else {
+    <p>An error has occurred...</p>
     }
   </div>
 </currently-playing-material>

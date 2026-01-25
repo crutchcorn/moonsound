@@ -13,5 +13,7 @@ export class PlayPause {
   resumeit = output();
   pauseit = output();
   volumeClick = output();
+  pickSong = output();
   isPaused = input.required<boolean>();
+  isPlayingASong = input.required<boolean>();
 }
