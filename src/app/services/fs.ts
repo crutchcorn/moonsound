@@ -11,7 +11,7 @@ export function pickSong() {
   });
 }
 
-export function addFolder() {
+export function pickFolder() {
     return open({
         title: "Add folder",
         directory: true,

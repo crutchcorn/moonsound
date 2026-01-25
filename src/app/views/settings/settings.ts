@@ -2,7 +2,8 @@ import { Component, effect } from "@angular/core";
 import { LightGlassOutlined } from "../../components/light-glass-outlined/light-glass-outlined";
 import { setBodyBg } from "../../utils/styling";
 import {injectMutation} from "@tanstack/angular-query-experimental";
-import { addFolder } from "../../services/fs";
+import { pickFolder } from "../../services/fs";
+import { addFolder } from "../../services/music";
 
 @Component({
   selector: "settings-view",
@@ -17,10 +18,11 @@ export class Settings {
   addFolderMutation = injectMutation(() => ({
     mutationKey: ["openFile"],
     mutationFn: async () => {
-      const path = await addFolder();
+      const path = await pickFolder();
       if (!path) {
         return;
       }
+      await addFolder(path);
       return true;
     },
   }));
