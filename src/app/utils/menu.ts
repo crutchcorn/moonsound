@@ -1,5 +1,9 @@
-import { Menu, MenuItem, Submenu } from "@tauri-apps/api/menu";
-import { exit } from "@tauri-apps/plugin-process";
+import {
+  Menu,
+  MenuItem,
+  PredefinedMenuItem,
+  Submenu,
+} from "@tauri-apps/api/menu";
 import { launchSettingsWindow } from "../services/windows";
 
 export async function getMenu() {
@@ -7,6 +11,11 @@ export async function getMenu() {
   const aboutSubmenu = await Submenu.new({
     text: "About",
     items: [
+      await PredefinedMenuItem.new({
+        item: {
+          About: {},
+        },
+      }),
       await MenuItem.new({
         id: "settings",
         text: "Settings",
@@ -14,13 +23,11 @@ export async function getMenu() {
           void launchSettingsWindow().catch((err) => console.error(err));
         },
       }),
-      // Can make these `IconMenuItem`s later to add icons
-      await MenuItem.new({
-        id: "quit",
-        text: "Quit",
-        action: () => {
-          void exit(0).catch((err) => console.error(err));
-        },
+      await PredefinedMenuItem.new({
+        item: "CloseWindow",
+      }),
+      await PredefinedMenuItem.new({
+        item: "Quit",
       }),
     ],
   });
