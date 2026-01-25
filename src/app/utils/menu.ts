@@ -1,11 +1,19 @@
 import { Menu, MenuItem, Submenu } from "@tauri-apps/api/menu";
 import { exit } from "@tauri-apps/plugin-process";
+import { launchSettingsWindow } from "./settings";
 
 export async function getMenu() {
   // Will become the application submenu on MacOS
   const aboutSubmenu = await Submenu.new({
     text: "About",
     items: [
+      await MenuItem.new({
+        id: "settings",
+        text: "Settings",
+        action: () => {
+          void launchSettingsWindow().catch((err) => console.error(err));
+        },
+      }),
       // Can make these `IconMenuItem`s later to add icons
       await MenuItem.new({
         id: "quit",

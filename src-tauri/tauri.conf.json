@@ -18,7 +18,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "tauri-app",
+        "title": "Moonsound",
         "width": 640,
         "height": 292,
         "titleBarStyle": "Overlay",

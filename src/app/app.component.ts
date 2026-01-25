@@ -7,7 +7,6 @@ import { setPosition, musicSync, Duration } from "./store/tauri";
 import { AppDispatch, RootState } from "./store";
 import { UnderTitlebar } from "./components/under-titlebar.component";
 import { Metadata } from "./injectables/metadata";
-import { Menu, MenuItem } from "@tauri-apps/api/menu";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { getMenu } from "./utils/menu";
 
@@ -16,7 +15,6 @@ import { getMenu } from "./utils/menu";
   imports: [RouterOutlet, UnderTitlebar],
   providers: [Metadata],
   template: `
-    <app-under-titlebar />
     <router-outlet></router-outlet>
   `,
 })
