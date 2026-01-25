@@ -22,7 +22,6 @@ export class Settings {
       if (!path) {
         return;
       }
-      await play(path);
       return true;
     },
   }));
