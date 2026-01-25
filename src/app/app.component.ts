@@ -5,14 +5,13 @@ import { injectDispatch, injectSelector } from "@reduxjs/angular-redux";
 import { Event, listen } from "@tauri-apps/api/event";
 import { setPosition, musicSync, Duration } from "./store/tauri";
 import { AppDispatch, RootState } from "./store";
-import { UnderTitlebar } from "./components/under-titlebar.component";
 import { Metadata } from "./injectables/metadata";
 import { injectQuery } from "@tanstack/angular-query-experimental";
 import { getMenu } from "./utils/menu";
 
 @Component({
   selector: "app-root",
-  imports: [RouterOutlet, UnderTitlebar],
+  imports: [RouterOutlet],
   providers: [Metadata],
   template: `
     <router-outlet></router-outlet>
