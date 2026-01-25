@@ -1,0 +1,10 @@
+.under-titlebar-macos {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.logo {
+  opacity: 0.5;
+  mix-blend-mode: plus-lighter;
+}

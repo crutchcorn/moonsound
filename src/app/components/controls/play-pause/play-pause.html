@@ -1,0 +1,20 @@
+<div
+  class="buttonsRow"
+  style="background-color: {{
+    metadata.coverImagePalette.data()?.DarkVibrant?.hex
+  }}"
+>
+  <button class="invisibleButton" (click)="volumeClick.emit()">
+    <img
+      height="24"
+      width="24"
+      src="/src/assets/volume_icon.svg"
+      alt="Volume"
+    />
+  </button>
+  <play-pause-btn
+    [isPaused]="isPaused()"
+    (resumeit)="resumeit.emit()"
+    (pauseit)="pauseit.emit()"
+  />
+</div>

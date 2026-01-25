@@ -1,0 +1,110 @@
+
+.container {
+  padding: 24px;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  justify-content: center;
+  align-items: center;
+  /* 32 because of top area */
+  height: calc(100vh - 32px);
+  box-sizing: border-box;
+}
+
+.infoContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  padding: 0 32px;
+  text-align: center;
+  width: 1px;
+  flex-grow: 1;
+}
+
+.textContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+  color: white;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.artist {
+  font-size: 16px;
+  margin: 0;
+  color: white;
+  opacity: 0.8;
+}
+
+.album {
+  font-size: 16px;
+  margin: 0;
+  color: white;
+  opacity: 0.8;
+}
+
+.progressContainer {
+  width: 100%;
+  padding: 8px 0;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.progressTextContainer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.progressText {
+  font-size: 14px;
+  color: white;
+  opacity: 0.5;
+  margin: 0;
+}
+
+.progressBar {
+  border-radius: 1.5rem;
+  width: 100%;
+  box-shadow:
+          0px -0.5px 1px 0px rgba(255, 255, 255, 0.3) inset,
+          0px -0.5px 1px 0px rgba(255, 255, 255, 0.25) inset,
+          0px 1.5px 4px 0px rgba(0, 0, 0, 0.08) inset,
+          0px 1.5px 4px 0px rgba(0, 0, 0, 0.1) inset;
+  background-blend-mode: plus-darker;
+  height: 0.5rem;
+  appearance: none;
+  background: rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+}
+
+.progressBar::-webkit-slider-thumb {
+  appearance: none;
+  width: 0;
+  height: 0;
+}
+
+.progressBar::-webkit-slider-runnable-track {
+  height: 0.5rem;
+  border-radius: 1.5rem;
+  background: linear-gradient(
+                  to right,
+                  rgba(255, 255, 255, 0.8) 0%,
+                  rgba(255, 255, 255, 0.8) var(--progress, 0%),
+                  transparent var(--progress, 0%),
+                  transparent 100%
+  );
+}

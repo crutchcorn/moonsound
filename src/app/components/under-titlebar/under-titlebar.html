@@ -1,0 +1,5 @@
+@if (currentPlatform === "macos") {
+  <under-titlebar-macos [theme]="theme.data() ?? 'dark'" />
+} @else {
+  <div style="height: 32px"></div>
+}

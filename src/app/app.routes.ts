@@ -1,7 +1,7 @@
 import { Routes } from "@angular/router";
-import { CurrentlyPlaying } from "./views/currently-playing.component";
-import { Settings } from "./views/settings.component";
 import { AppLayout } from "./layouts/app-layout";
+import { CurrentlyPlaying } from "./views/currently-playing/currently-playing";
+import { Settings } from "./views/settings/settings";
 
 export const routes: Routes = [
   {

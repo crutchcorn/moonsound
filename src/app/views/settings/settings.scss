@@ -1,0 +1,41 @@
+:host {
+  display: contents;
+}
+
+.container {
+  height: 1px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 2rem;
+}
+
+.container > light-glass-outlined {
+  flex-grow: 1;
+  height: 1px;
+}
+
+.innerContents {
+  padding: 2rem;
+}
+
+.title {
+  margin: 0;
+  font-family: "Roboto Flex", sans-serif;
+  font-variation-settings:
+    "wght" 500,
+    "wdth" 151,
+    "GRAD" 150,
+    "XOPQ" 96;
+}
+
+.hr {
+  all: unset;
+  display: block;
+  height: 2px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
