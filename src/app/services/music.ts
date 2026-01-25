@@ -6,6 +6,12 @@ export function play(fsPath: string) {
   });
 }
 
+export function addFolder(fsPath: string) {
+  return invoke<void>("add_folder", {
+    path: fsPath,
+  });
+}
+
 // TODO: Implement this function
 export function importSong(_fsPath: string) {}
 

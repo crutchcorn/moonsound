@@ -10,3 +10,14 @@ export function pickSong() {
     ],
   });
 }
+
+export function addFolder() {
+    return open({
+        title: "Add folder",
+        directory: true,
+        multiple: false,
+        recursive: true,
+        canCreateDirectories: true,
+        //defaultPath: `/Users/${user}/Music`
+    })
+}
