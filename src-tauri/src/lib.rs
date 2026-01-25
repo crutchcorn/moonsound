@@ -72,6 +72,7 @@ pub async fn run() {
             music::pause,
             music::resume,
             music::get_position,
+            music::add_folder,
             windows::make_window_effect
         ])
         .run(tauri::generate_context!())

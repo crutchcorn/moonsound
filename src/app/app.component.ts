@@ -2,7 +2,7 @@ import { Component, effect } from "@angular/core";
 
 import { RouterOutlet } from "@angular/router";
 import { injectDispatch, injectSelector } from "@reduxjs/angular-redux";
-import { Event, listen } from "@tauri-apps/api/event";
+import { Event, listen, UnlistenFn } from "@tauri-apps/api/event";
 import { setPosition, musicSync, Duration } from "./store/tauri";
 import { AppDispatch, RootState } from "./store";
 import { Metadata } from "./injectables/metadata";
@@ -62,16 +62,20 @@ export class App {
     if (this.tauri().paused) return;
     if (this.tauri().currentlyPlayingPath === null) return;
 
-    let unlisten = () => {};
+    const unlisteners: UnlistenFn[] = [];
 
     listen("PLAYBACK_POSITION_UPDATE", (event: Event<Duration>) => {
       this.dispatch(setPosition(event.payload));
     }).then((listener) => {
-      unlisten = listener;
+      unlisteners.push(listener);
     });
 
+    listen("FOLDER_ADDED_EVENT", (event: Event<Duration>) => {
+      console.log("FOLDER_ADDED_EVENT", event);
+    }).then(listener => unlisteners.push(listener))
+
     onCleanup(() => {
-      unlisten();
+      unlisteners.forEach((unlistener) => unlistener());
     });
   });
 }

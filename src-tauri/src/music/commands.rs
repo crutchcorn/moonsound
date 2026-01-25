@@ -6,6 +6,9 @@ use std::fs::File;
 use std::io::BufReader;
 
 use super::core;
+use entity::saved_directories;
+
+use sea_orm::Set;
 
 #[tauri::command]
 pub fn read_metadata(path: &str) -> Result<core::MetadataResult, String> {
@@ -109,4 +112,14 @@ pub fn get_redux_store_state(state: State<'_, AppData>) -> core::PlayerState {
 #[tauri::command]
 pub fn get_position(state: State<'_, AppData>) -> std::time::Duration {
     core::get_position(&state)
+}
+
+#[tauri::command]
+pub fn add_folder(app: AppHandle, path: &str) -> Result<(), String> {
+    let pear = saved_directories::ActiveModel {
+        path: Set(path.to_owned()),
+        ..Default::default() // all other attributes are `NotSet`
+    };
+    app.emit("FOLDER_ADDED_EVENT", "").unwrap();
+    Ok(())
 }
