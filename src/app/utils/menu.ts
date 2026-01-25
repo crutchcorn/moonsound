@@ -1,6 +1,6 @@
 import { Menu, MenuItem, Submenu } from "@tauri-apps/api/menu";
 import { exit } from "@tauri-apps/plugin-process";
-import { launchSettingsWindow } from "./settings";
+import { launchSettingsWindow } from "../services/windows";
 
 export async function getMenu() {
   // Will become the application submenu on MacOS

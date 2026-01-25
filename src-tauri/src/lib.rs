@@ -4,14 +4,13 @@
 mod macos_interop;
 mod music;
 mod state;
+mod windows;
 
 use migration::{Migrator, MigratorTrait};
 use rodio::OutputStreamBuilder;
 use sea_orm::Database;
 use state::AppDataNew;
-use tauri::{Manager, State, Theme};
-use tauri_plugin_decorum::WebviewWindowExt;
-use window_vibrancy::{NSVisualEffectMaterial, apply_mica, apply_vibrancy};
+use tauri::{Manager};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub async fn run() {
@@ -58,26 +57,7 @@ pub async fn run() {
             }
 
             let main_window = app.get_webview_window("main").unwrap();
-            main_window.create_overlay_titlebar().unwrap();
-            if cfg!(target_os = "macos") {
-                #[cfg(target_os = "macos")]
-                main_window.make_transparent().unwrap();
-
-                #[cfg(target_os = "macos")]
-                apply_vibrancy(&main_window, NSVisualEffectMaterial::HudWindow, None, None)
-                    .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
-            } else if cfg!(target_os = "windows") {
-                #[cfg(target_os = "windows")]
-                apply_mica(
-                    &main_window,
-                    if main_window.theme().unwrap() == Theme::Dark {
-                        Some(true)
-                    } else {
-                        None
-                    },
-                )
-                .expect("Unsupported platform! 'apply_mica' is only supported on Windows");
-            }
+            windows::make_window_effects(main_window);
 
             Ok(())
         })
@@ -92,6 +72,7 @@ pub async fn run() {
             music::pause,
             music::resume,
             music::get_position,
+            windows::make_window_effect
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -7,10 +7,12 @@ export const routes: Routes = [
   {
     path: "",
     component: AppLayout,
-    children: [{ path: "", component: CurrentlyPlaying }],
-  },
-  {
-    path: "settings",
-    component: Settings,
+    children: [
+      { path: "", component: CurrentlyPlaying },
+      {
+        path: "settings",
+        component: Settings,
+      },
+    ],
   },
 ];
