@@ -13,7 +13,7 @@ import { pause, play, resume, seek } from "../../services/music";
 import { zeroPad } from "../../utils/strings";
 
 @Component({
-  selector: "now-playing",
+  selector: "currently-playing",
   imports: [CurrentlyPlayingMaterial, AlbumArt, PlayPause, VolumeSlider],
   templateUrl: "./currently-playing.html",
   styleUrl: "currently-playing.scss",

@@ -1,0 +1,79 @@
+.container {
+  display: flex;
+  gap: 12px;
+  position: relative;
+  border-radius: 14px;
+  padding: 12px;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+:host ::ng-deep light-glass-outlined {
+  border-radius: 12px !important;
+  padding: 1px !important;
+}
+
+:host ::ng-deep light-glass-outlined > * {
+  height: fit-content !important;
+  border-radius: calc(12px + 1px) !important;
+}
+
+.coverBgContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+.coverBgBlur {
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(90px);
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+}
+
+.coverBg {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  z-index: 1;
+  opacity: 0.2;
+}
+
+.hoverScrim {
+  opacity: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background: white;
+}
+
+.container:hover .hoverScrim {
+  opacity: 0.1;
+}
+
+.icon {
+  height: 24px;
+  width: 24px;
+  object-fit: contain;
+  object-position: center;
+}
+
+.contents {
+  z-index: 4;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
