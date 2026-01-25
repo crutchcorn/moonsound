@@ -1,5 +1,6 @@
-import { Component } from "@angular/core";
+import { Component, effect } from "@angular/core";
 import { LightGlassOutlined } from "../components/light-glass-outlined";
+import { setBodyBg } from "../utils/styling";
 
 @Component({
   selector: "app-settings",
@@ -15,10 +16,13 @@ import { LightGlassOutlined } from "../components/light-glass-outlined";
   `,
   styles: [
     `
+      :host {
+        display: contents;
+      }
+
       .container {
-        min-height: 100vh;
-        /* TODO: Change to CSS variable */
-        background: #060606;
+        height: 1px;
+        flex-grow: 1;
         display: flex;
         flex-direction: column;
         box-sizing: border-box;
@@ -61,4 +65,8 @@ import { LightGlassOutlined } from "../components/light-glass-outlined";
   ],
   imports: [LightGlassOutlined],
 })
-export class Settings {}
+export class Settings {
+  _ = effect(() => {
+    setBodyBg("#060606");
+  });
+}
