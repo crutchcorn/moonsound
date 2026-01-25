@@ -3,7 +3,6 @@ import { LightGlassOutlined } from "../../components/light-glass-outlined/light-
 import { setBodyBg } from "../../utils/styling";
 import {injectMutation} from "@tanstack/angular-query-experimental";
 import { addFolder } from "../../services/fs";
-import {play} from "../../services/music";
 
 @Component({
   selector: "settings-view",
